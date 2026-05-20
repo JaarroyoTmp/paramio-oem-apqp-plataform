@@ -1,0 +1,24 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Env
+.env
+.env.local
+
+# Node / future
+node_modules/
+dist/
+build/
+
+# Backups
+*.bak
+*.tmp
+~$*
+
+# IDE
+.vscode/
+.idea/
