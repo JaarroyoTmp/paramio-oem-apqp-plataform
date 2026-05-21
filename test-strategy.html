@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+<body>
+
+<h1>Test Strategy</h1>
+
+<script src="core/strategies/thread.js"></script>
+
+<script>
+console.log(
+  "STRATEGIES:",
+  window.ParamioStrategies
+);
+
+const s = window.ParamioStrategies.thread;
+
+console.log("THREAD:", s);
+
+const result = s.evaluate(
+  {
+    characteristic: "Rosca M8",
+    specification: "M8"
+  },
+  {}
+);
+
+console.log("RESULT:", result);
+</script>
+
+</body>
+</html>

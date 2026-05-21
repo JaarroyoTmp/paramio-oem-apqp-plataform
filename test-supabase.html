@@ -1,0 +1,25 @@
+<!doctype html>
+<html>
+<body>
+
+<h1>Test Supabase</h1>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="js/supabase.js"></script>
+
+<script>
+async function test(){
+
+  const { data, error } = await supabaseClient
+    .from('customers')
+    .select('*');
+
+  console.log("DATA:", data);
+  console.log("ERROR:", error);
+}
+
+test();
+</script>
+
+</body>
+</html>
