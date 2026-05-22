@@ -1,6 +1,4 @@
-<!doctype html>
-<html lang="es">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ISIR V223</title><link rel="stylesheet" href="assets/platform.css"><script src="core/storage.js"></script><script src="core/type-normalizer.js"></script><script src="core/parser-inspection.js"></script><script src="core/parser-pcdmis.js"></script><script src="core/validation-engine.js"></script><script src="core/strategies/dimension.js"></script><script src="core/strategies/position.js"></script><script src="core/strategies/profile.js"></script><script src="core/strategies/diameter.js"></script><script src="core/strategies/flatness.js"></script><script src="core/strategies/orientation.js"></script><script src="core/strategies/depth.js"></script><script src="core/strategies/radius.js"></script><script src="core/strategies/thread.js"></script><script src="core/result-engine.js"></script><script src="core/diagnostics-engine.js"></script>
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ISIR V223</title><link rel="stylesheet" href="assets/platform.css"><script src="core/storage.js"></script><script src="core/type-normalizer.js"></script><script src="core/parser-inspection.js"></script><script src="core/parser-pcdmis.js"></script><script src="core/validation-engine.js"></script><script src="core/strategies/dimension.js"></script><script src="core/strategies/position.js"></script><script src="core/strategies/profile.js"></script><script src="core/strategies/diameter.js"></script><script src="core/strategies/flatness.js"></script><script src="core/strategies/orientation.js"></script><script src="core/strategies/depth.js"></script><script src="core/strategies/radius.js"></script><script src="core/strategies/thread.js"></script><script src="core/result-engine.js"></script><script src="core/diagnostics-engine.js"></script>
 <style id="paramio-isir-github-fallback">
 :root{--navy:#0d2345;--navy2:#173864;--line:#c9d5e6;--bg:#eef3f8;--orange:#ef8b2c;--green:#168a45;--red:#d22d24}
 *{box-sizing:border-box}
@@ -44,68 +42,36 @@ th{background:#eaf0f8;color:#071a3a;text-transform:uppercase;font-size:11px}
 @media(max-width:900px){.side{position:static;width:auto}.app{display:block}.main{margin-left:0;width:100%;padding:15px}.statGrid{grid-template-columns:1fr 1fr}.docHead,.toolbar,.top{display:block}}
 @media print{.side,.noPrint,.paramio-lang-switch{display:none!important}.main{margin-left:0;width:100%;padding:0}.card{box-shadow:none}}
 </style>
-<script id="paramio-isir-github-fallback">
+<script id="paramio-isir-github-safe-fallback">
 (function(){
-  window.esc = window.esc || function(v){return String(v ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");};
-  window.renderShell = window.renderShell || function(active){
-    return '<aside class="side"><div class="brand"><b>Paramio</b><span>QUALITY DOCUMENTATION</span></div><nav>'+
-    '<a class="'+(active==="home"?"active":"")+'" href="index.html">Inicio / Cargar</a>'+
-    '<a class="'+(active==="diagnostico"?"active":"")+'" href="diagnostico.html">Diagnóstico</a>'+
-    '<a class="'+(active==="isir"?"active":"")+'" href="isir.html">ISIR</a>'+
-    '<a class="'+(active==="dimensional"?"active":"")+'" href="dimensional.html">Dimensional</a>'+
-    '<a class="'+(active==="kcs"?"active":"")+'" href="kcs.html">KCS</a>'+
-    '<a class="'+(active==="control"?"active":"")+'" href="control-plan.html">Plan de control</a>'+
-    '<a class="'+(active==="flowchart"?"active":"")+'" href="flowchart.html">Flowchart</a>'+
-    '</nav><small>CORE V218<br>KCS exacto + presentación profesional.</small></aside>';
-  };
-  window.applyKcsSelectionToProject = window.applyKcsSelectionToProject || function(project){return project;};
-  window.noDataHtml = window.noDataHtml || function(){return '<section class="card"><h2>ISIR</h2><p>No hay datos cargados. Vuelve a Inicio / Cargar, procesa la documentación y regresa a ISIR.</p></section>';};
-  window.filterRows = window.filterRows || function(rows){
-    const q = String(window.__lastFilter || "").trim().toLowerCase();
-    if(!q) return rows || [];
-    return (rows || []).filter(function(c){return JSON.stringify(c).toLowerCase().includes(q);});
-  };
-  window.selectedPieces = window.selectedPieces || function(project, includeDefault){
-    const pieces = new Set();
-    (project?.characteristics || []).forEach(function(c){Object.keys(c.results || {}).forEach(function(k){pieces.add(k);});});
-    if(includeDefault && pieces.size === 0) pieces.add("1");
-    return Array.from(pieces);
-  };
-  window.loadKcsSelection = window.loadKcsSelection || function(project){
-    const ref = project?.meta?.reference || "default";
-    const keys = ["paramio_kcs_selection_"+ref,"paramio_kcs_selection","paramio_kcs_v218"];
-    for(const key of keys){try{const raw=localStorage.getItem(key);if(raw)return JSON.parse(raw);}catch(e){}}
-    return {};
-  };
-  window.metaHtml = window.metaHtml || function(project){
-    const m = project?.meta || {};
-    return '<div class="metaBox"><b>Referencia:</b> '+esc(m.reference||"")+'<br><b>Revisión:</b> '+esc(m.revision||"")+'<br><b>Cliente:</b> '+esc(m.client||"")+'<br><b>Pieza:</b> '+esc(m.partName||"")+'<br><b>Nº Plan Control:</b> '+esc(m.planNo||"")+'</div>';
-  };
-  window.isKcs = window.isKcs || function(c){
-    const p = window.__paramioCurrentProject || (typeof loadProject === "function" ? loadProject() : null);
-    const sel = window.loadKcsSelection(p || {});
-    return !!c?.kcs || !!c?.isKcs || !!sel[c?.number] || !!sel[String(c?.number)];
-  };
-  window.statusOf = window.statusOf || function(c){
-    const values = Object.values(c?.results || {});
-    if(values.some(function(v){return String(v?.status || v?.estado || v).toUpperCase().includes("NOK");})) return "NOK";
-    if(values.some(function(v){return String(v?.status || v?.estado || v).toUpperCase().includes("OK");})) return "OK";
-    return "PEND.";
-  };
-  window.featureType = window.featureType || function(c){return c?.type || c?.featureType || c?.kind || "";};
-  window.cleanChar = window.cleanChar || function(v){return String(v ?? "");};
-  window.specText = window.specText || function(c){return esc(c?.specification || c?.spec || c?.tolerance || "");};
-  window.pieceStatus = window.pieceStatus || function(c,piece){const r=c?.results?.[piece];if(!r)return "PEND.";return r.status || r.estado || statusOf(c);};
-  window.statusPill = window.statusPill || function(status){const s=String(status||"PEND.").toUpperCase();const cls=s.includes("NOK")?"nok":s.includes("OK")?"ok":"pend";return '<span class="pill '+cls+'">'+esc(status||"PEND.")+'</span>';};
-  window.resultCell = window.resultCell || function(c,piece){const r=c?.results?.[piece];if(!r)return "-";if(typeof r==="object")return esc(r.value ?? r.result ?? r.medicion ?? r.measurement ?? "-");return esc(r);};
+  if (typeof window.esc !== "function") {
+    window.esc = function(v){
+      return String(v ?? "").replace(/[&<>"']/g, function(m){
+        return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m];
+      });
+    };
+  }
+
+  if (typeof window.renderShell !== "function") {
+    window.renderShell = function(active){
+      return '<aside class="side">' +
+        '<div class="brand"><b>Paramio</b><span>QUALITY DOCUMENTATION</span></div>' +
+        '<nav>' +
+          '<a class="'+(active==="home"?"active":"")+'" href="index.html">Inicio / Cargar</a>' +
+          '<a class="'+(active==="diagnostico"||active==="diag"?"active":"")+'" href="diagnostico.html">Diagnóstico</a>' +
+          '<a class="'+(active==="isir"?"active":"")+'" href="isir.html">ISIR</a>' +
+          '<a class="'+(active==="dimensional"?"active":"")+'" href="dimensional.html">Dimensional</a>' +
+          '<a class="'+(active==="kcs"?"active":"")+'" href="kcs.html">KCS</a>' +
+          '<a class="'+(active==="control"||active==="plan"?"active":"")+'" href="control-plan.html">Plan de control</a>' +
+          '<a class="'+(active==="flowchart"||active==="flow"?"active":"")+'" href="flowchart.html">Flowchart</a>' +
+        '</nav><small>CORE V218/V223<br>KCS exacto + presentación profesional.</small>' +
+      '</aside>';
+    };
+  }
 })();
 </script>
 </head>
-<body>
-<div class="app"><script>document.write(renderShell('isir'))</script>
-<main class="main"><header class="top"><div><h1>ISIR 100%</h1><p>Render ISIR. No interpreta Excel; usa el motor común.</p></div><div class="actions noPrint"><a class="btn light" href="index.html">Cargar Excel</a><button class="btn" onclick="window.print()">Imprimir</button></div></header><div id="root"></div></main>
-</div>
-<script>
+<body><div class="app"><script>document.write(renderShell('isir'))</script><main class="main"><header class="top"><div><h1>ISIR 100%</h1><p>Render ISIR. No interpreta Excel; usa el motor común.</p></div><div class="actions noPrint"><a class="btn light" href="index.html">Cargar Excel</a><button class="btn" onclick="window.print()">Imprimir</button></div></header><div id="root"></div></main></div><script>
 let p=loadProject();const root=document.getElementById('root');function render(){p=applyKcsSelectionToProject(loadProject());window.__paramioCurrentProject=p;if(!p||!p.characteristics.length){root.innerHTML=noDataHtml();return;}const chars=filterRows(p.characteristics),pieces=selectedPieces(p,true);root.innerHTML=`<section class="card"><div class="docHead"><div><img class="logoSmall" src="assets/logo_paramio.png"><h2>ISIR</h2><p>Informe de inspección inicial. Las KCS se identifican visualmente según la selección dimensional.</p></div>${metaHtml(p)}</div></section><section class="card noPrint"><div class="toolbar"><input id="filter" type="search" placeholder="Filtrar globo / característica / estado" oninput="window.__lastFilter=this.value;render()"><div class="actions"><a class="btn light" href="dimensional.html">Marcar KCS en Dimensional</a><a class="btn orange" href="diagnostico.html">Diagnóstico</a></div></div></section><section class="card"><div class="statGrid"><div class="stat"><b>${p.characteristics.length}</b><span>Cotas</span></div><div class="stat"><b>${Object.keys(loadKcsSelection(p)).length}</b><span>KCS</span></div><div class="stat"><b>${p.characteristics.filter(c=>statusOf(c)==='OK').length}</b><span>OK</span></div><div class="stat"><b>${p.characteristics.filter(c=>statusOf(c)==='NOK').length}</b><span>NOK</span></div><div class="stat"><b>${p.characteristics.filter(c=>statusOf(c)==='PEND.').length}</b><span>Sin medición</span></div></div></section><section class="card"><div class="tableWrap"><table><thead><tr><th>Globo</th><th>KCS</th><th>Tipo</th><th>Característica Inspection</th><th>Especificación</th>${pieces.map(x=>`<th>Registro pieza ${esc(x)}</th><th>Estado pieza ${esc(x)}</th>`).join('')}</tr></thead><tbody>${chars.map(c=>`<tr><td>${esc(c.number)}</td><td>${isKcs(c)?'<span class="pill kcs">KCS</span>':''}</td><td><b>${esc(featureType(c))}</b></td><td>${esc(cleanChar(c.value))}</td><td>${specText(c)}</td>${pieces.map(x=>`<td class="result">${resultCell(c,x)}</td><td>${statusPill(pieceStatus(c,x))}</td>`).join('')}</tr>`).join('')}</tbody></table></div></section>`;const f=document.getElementById('filter');if(f)f.value=(window.__lastFilter||'');}render();
 </script>
 
@@ -468,4 +434,3 @@ let p=loadProject();const root=document.getElementById('root');function render()
 })();
 </script>
 </body></html>
-
