@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Flowchart - Paramio OEM Platform</title>
+  <link rel="stylesheet" href="assets/platform.css">
+  <link rel="stylesheet" href="modules/flowchart/flowchart.css">
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brandBox"><img src="assets/logo_paramio.png" alt="Paramio"></div>
+    <nav class="nav">
+      <a href="index.html">⌂ Inicio</a>
+      <a href="isir.html">▦ ISIR / Dimensional</a>
+      <a class="active" href="flowchart.html">↔ Flowchart</a>
+      <a href="control-plan.html">▣ Plan de control</a>
+      <a href="rules.html">⚙ Reglas</a>
+      <a href="app.html">↗ App estable</a>
+    </nav>
+    <div class="sideFoot">Soporte<br><b>V87 Flow Engine</b></div>
+  </aside>
+
+  <main class="main">
+    <header class="top">
+      <div>
+        <h1>Automatización de documentación</h1>
+        <p>Flowchart modular · motor independiente · sin tocar importación ni plan estable</p>
+      </div>
+      <div class="topActions">
+        <button class="iconBtn" onclick="window.print()">Imprimir</button>
+        <a class="iconBtn" href="app.html#route">App estable</a>
+      </div>
+    </header>
+
+    <section class="content">
+      <div class="card cardPad">
+        <div class="gridMeta">
+          <div class="field"><label>Referencia</label><input id="meta_reference" onchange="updateMetaFromForm();renderFlowchart()"></div>
+          <div class="field"><label>Revisión</label><input id="meta_revision" onchange="updateMetaFromForm();renderFlowchart()"></div>
+          <div class="field"><label>Cliente</label><input id="meta_client" onchange="updateMetaFromForm();renderFlowchart()"></div>
+          <div class="field"><label>Nombre pieza</label><input id="meta_partName" onchange="updateMetaFromForm();renderFlowchart()"></div>
+          <div class="field"><label>Fecha</label><input id="meta_date" onchange="updateMetaFromForm();renderFlowchart()"></div>
+          <div class="field"><label>Lote</label><input id="meta_lot" onchange="updateMetaFromForm();renderFlowchart()"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="tabs">
+          <a href="index.html">Resumen</a>
+          <a class="active" href="flowchart.html">Flowchart / Hoja de ruta</a>
+          <a href="control-plan.html">Plan de control</a>
+          <a href="app.html#plan">Plan antiguo estable</a>
+        </div>
+      </div>
+
+      <div class="card cardPad flowModuleCard">
+        <div class="moduleTitle">
+          <div>
+            <h2>FLOWCHART / HOJA DE RUTA</h2>
+            <div class="sub">V87 · decisiones y reacciones como lógica real. Las viñetas ya no son destino decorativo.</div>
+          </div>
+          <div class="flowActions no-print">
+            <button class="btn" onclick="resetFlowFromRoute()">Reconstruir desde ruta</button>
+            <button class="btn" onclick="resetFlowDefault()">Restaurar flujo OEM base</button>
+          </div>
+        </div>
+        <div id="flowRoot"></div>
+      </div>
+
+      <details class="card cardPad" open>
+        <summary><b>Editor de flowchart independiente</b></summary>
+        <div class="notice" style="margin-top:12px">Este editor solo afecta al Flowchart. No modifica lectura Inspection, PC-DMIS ni Plan de Control estable.</div>
+        <div id="flowEditor" style="margin-top:12px"></div>
+      </details>
+    </section>
+  </main>
+</div>
+<script src="modules/core/state.js"></script>
+<script src="modules/flowchart/flowchart.js"></script>
+</body>
+</html>

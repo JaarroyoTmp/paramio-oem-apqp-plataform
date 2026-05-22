@@ -1,0 +1,377 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>KCS</title><style>
+:root{--navy:#071a3a;--blue:#315cff;--green:#15915b;--red:#d93025;--orange:#ee8a31;--line:#d7e0ef;--bg:#f3f6fb;--muted:#5f6f89}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--navy)}
+.app{display:grid;grid-template-columns:240px 1fr;min-height:100vh}.side{background:#071a3a;color:#fff;padding:18px}.logo{background:#fff;border-radius:16px;padding:14px;margin-bottom:18px}.logo img{width:100%}
+.nav a{display:block;color:#fff;text-decoration:none;font-weight:800;padding:12px;border-radius:10px;margin:6px 0}.nav a.active,.nav a:hover{background:#315cff}
+.main{padding:24px}.top{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:18px}.top h1{margin:0;font-size:30px}.top p{margin:6px 0;color:var(--muted)}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:16px;box-shadow:0 12px 30px rgba(7,26,58,.08)}
+.btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border:0;border-radius:10px;padding:12px 16px;background:#315cff;color:#fff;font-weight:900;cursor:pointer}.btn.green{background:#15915b}.btn.light{background:#fff;color:#071a3a;border:1px solid #c8d4e6}.btn.orange{background:#efb27f;color:#071a3a}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.pill{display:inline-block;border-radius:99px;padding:4px 9px;font-weight:900;font-size:12px;background:#eaf7f0;color:#0a8a47}.pill.nok{background:#ffecec;color:#c92727}.pill.warn{background:#fff7ea;color:#8b4a00}.pill.kcs{background:#fff0f6;color:#b0005a}
+.tableWrap{overflow:auto;border:1px solid var(--line);border-radius:14px}table{border-collapse:collapse;width:100%;min-width:1120px;background:#fff}th{background:#cdd8ea;color:#071a3a;font-size:12px}td,th{border:1px solid #c8d4e6;padding:8px;vertical-align:middle;font-size:12px}td.result{text-align:center;font-weight:900;min-width:150px;vertical-align:top}
+.resultStack{display:flex;flex-direction:column;gap:5px;width:100%}.manualInput{width:100%;min-width:95px;border:1px solid #c8d4e6!important;background:#fff;border-radius:8px;padding:6px;text-align:center;font-weight:900;font-family:Arial,Helvetica,sans-serif}.manualInput.nokVal{color:#d93025!important;border-color:#f3b5b5!important;background:#fff5f5!important}.manualInput.manualEmpty{border-color:#f2c58b!important;background:#fffdf5}.manualInput.override{border-color:#315cff!important;background:#f3f6ff}
+.docHead{display:flex;justify-content:space-between;gap:20px;align-items:flex-start}.metaBox{text-align:right;font-weight:800;font-size:12px}.notice{border:1px solid #f2c58b;background:#fff7ea;color:#8b4a00;border-radius:12px;padding:12px;font-size:13px;margin-top:12px}
+.logoSmall{height:58px}.statGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px}.stat b{font-size:24px}.stat span{display:block;color:var(--muted);font-size:12px}
+input[type="search"],select,input[type="number"]{border:1px solid #c8d4e6;border-radius:10px;padding:10px;min-width:160px}.kcsBox{width:18px;height:18px}
+.toolbar{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.small{font-size:12px;color:var(--muted)}
+.planTitle{background:#efb27f;border:1px solid #111;text-align:center;font-size:24px;font-weight:900;padding:10px}.metaGrid{display:grid;grid-template-columns:120px 1fr 120px 1fr 120px 1fr;border-left:1px solid #111;border-top:1px solid #111}.metaGrid div{border-right:1px solid #111;border-bottom:1px solid #111;padding:7px;font-weight:900}.metaGrid .lab{background:#f8fafc}
+.opHeader{background:#071a3a!important;color:#fff!important;font-weight:900;text-align:center}.typeBadge{display:inline-flex;border-radius:99px;padding:3px 7px;font-weight:900;font-size:11px;background:#eaf7f0;color:#0a8a47}.typeBadge.kcs{background:#fff0f6;color:#b0005a}.typeBadge.proc{background:#eaf2ff;color:#1d4ed8}.typeBadge.doc{background:#fff7d6;color:#a16207}
+@media(max-width:1000px){.app{grid-template-columns:1fr}.statGrid{grid-template-columns:1fr}.metaBox{text-align:left}}
+@media print{.side,.actions,.noPrint,.toolbar{display:none!important}.app{display:block}.main{padding:0}.card{box-shadow:none;border:0}.tableWrap{border:0}body{background:#fff}table{min-width:0}td,th{font-size:8px;padding:4px}.manualInput{border:0!important;background:transparent!important}}
+</style><script>
+const RUNTIME_KEYS=[
+ 'paramio_oem_project_runtime_v167',
+ 'paramio_oem_project_state_latest_v167'
+];
+
+function num(v){let n=parseFloat(String(v||'').replace(',','.').replace(/[^\d.-]/g,''));return Number.isFinite(n)?n:NaN;}
+function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+function normalizeProject(p){
+ p=p||{};
+ if(!p.characteristics&&p.stableState&&p.stableState.characteristics)p.characteristics=p.stableState.characteristics;
+ if(!p.meta&&p.stableState&&p.stableState.meta)p.meta=p.stableState.meta;
+ p.meta=p.meta||{}; p.characteristics=Array.isArray(p.characteristics)?p.characteristics:[];
+ p.manualResults=p.manualResults||{};
+ p.characteristics.forEach(c=>{ if(!c.results)c.results={}; if(typeof c.kcs==='undefined')c.kcs=false; });
+ return p;
+}
+function loadProject(){
+ const keys=[
+  'paramio_oem_project_runtime_v167',
+  'paramio_oem_project_state_latest_v167'
+ ];
+ for(const store of [localStorage,sessionStorage]){
+   for(const k of keys){
+     try{
+       const raw=store.getItem(k);
+       if(!raw) continue;
+       const p=JSON.parse(raw);
+       if(p && p.characteristics && p.characteristics.length && p.parserVersion==='V167'){
+         return p;
+       }
+     }catch(e){}
+   }
+ }
+ return null;
+}
+function saveProject(p){p=normalizeProject(p);const s=JSON.stringify(p);RUNTIME_KEYS.forEach(k=>{try{localStorage.setItem(k,s);sessionStorage.setItem(k,s)}catch(e){}});}
+function renderShell(active){return `<aside class="side"><div class="logo"><img src="assets/logo_paramio.png" alt="Paramio"></div><nav class="nav">
+<a class="${active==='home'?'active':''}" href="index.html">⌂ Inicio / Cargar Excel</a>
+<a class="${active==='isir'?'active':''}" href="isir.html">▦ ISIR</a>
+<a class="${active==='dimensional'?'active':''}" href="dimensional.html">▤ Dimensional</a>
+<a class="${active==='kcs'?'active':''}" href="kcs.html">◆ Seleccionar KCS</a>
+<a class="${active==='plan'?'active':''}" href="control-plan.html">▣ Plan de control</a>
+<a href="flowchart.html">↔ Flowchart</a>
+<a href="rules.html">⚙ Reglas</a>
+</nav></aside>`;}
+function statusOf(c){
+ let rs=Object.values(c.results||{}), hasManual=false;
+ const p=loadProject(); const mr=p?.manualResults?.[String(c.number)]||{};
+ hasManual=Object.values(mr).some(v=>String(v||'').trim());
+ if(!rs.length && !hasManual)return 'PEND.';
+ return rs.every(r=>r.ok!==false)?'OK':'NOK';
+}
+function noDataHtml(){return `<div class="card"><h2>No hay proyecto V167 cargado</h2><p>Primero vuelve a Inicio, carga Excel Inspection + PC-DMIS y pulsa <b>Procesar documentación</b>.</p><div class="actions"><a class="btn green" href="index.html">Ir a cargar Excel</a></div></div>`;}
+function metaHtml(p){const m=p.meta||{};return `<div class="metaBox">Cliente: ${esc(m.client||'')}<br>Referencia: ${esc(m.reference||'')}<br>Pieza: ${esc(m.partName||'')}<br>Rev.: ${esc(m.revision||'')}<br>Fecha: ${esc(m.date||'')}</div>`;}
+function cleanChar(v){return String(v??'').replace(/[\uE000-\uF8FF�□▯▾◧◎⌖◴]/g,'').replace(/\s+/g,' ').trim();}
+function specText(c){return `LI ${esc(c.lower??'')} / LS ${esc(c.upper??'')} ${esc(c.units||'')}`;}
+function isKcs(c){return !!c.kcs;}
+function filterRows(chars){const q=(document.getElementById('filter')?.value||'').toLowerCase(); if(!q)return chars; return chars.filter(c=>[c.number,cleanChar(c.value),c.nominal,c.lower,c.upper,c.units,statusOf(c)].join(' ').toLowerCase().includes(q));}
+function pieceLabels(p){
+ const set=new Set();
+ (p.characteristics||[]).forEach(c=>Object.keys(c.results||{}).forEach(k=>set.add(String(k).replace(/^P/i,''))));
+ Object.values(p.manualResults||{}).forEach(byPiece=>Object.keys(byPiece||{}).forEach(k=>set.add(String(k).replace(/^P/i,''))));
+ let arr=[...set].sort((a,b)=>(parseInt(a.replace(/\D/g,''))||0)-(parseInt(b.replace(/\D/g,''))||0));
+ return arr;
+}
+
+function itemText(it){
+ try{return JSON.stringify(it||{}).toUpperCase();}catch(e){return [it.name,it.axis,it.desc,it.kind].map(x=>String(x||'')).join(' ').toUpperCase();}
+}
+function measured(it){return String(it?.measured??'').trim();}
+function charText(c){return String(c.value||'').toUpperCase();}
+function allItems(c,piece){
+ const r=(c.results||{})[piece] || (c.results||{})['P'+piece] || null;
+ return r && Array.isArray(r.items) ? r.items : [];
+}
+function pieceResult(c,piece){
+ return (c.results||{})[piece] || (c.results||{})['P'+piece] || null;
+}
+function manualValue(c,piece){
+ const p=loadProject(); return p?.manualResults?.[String(c.number)]?.[String(piece)] || '';
+}
+function axisOf(it){
+ const k=String(it.kind||'').trim().toUpperCase();
+ if(k)return k;
+ const ax=String(it.axis||'').trim().toUpperCase();
+ if(ax==='TP')return 'TP';
+ if(ax==='DF')return 'DF';
+ if(ax==='2D'||ax==='3D')return '2D';
+ if(ax==='PR')return 'PR';
+ if(ax==='PA')return 'PA';
+ if(/^D\d*$/.test(ax)||ax==='D')return 'D';
+ if(['X','Y','Z'].includes(ax))return ax;
+ if(ax==='A')return 'ANG';
+ if(ax==='M')return 'M';
+ const t=itemText(it);
+ if(/\bTP\b|TRUE\s*POSITION|POSICI/.test(t))return 'TP';
+ if(/PERF|PROFILE|PERFIL/.test(t))return 'PERF';
+ if(/UBIC|UBICACI/.test(t))return 'UBIC';
+ if(/\bANG\b|ANGLE|ANGULO|ANGULARIDAD/.test(t))return 'ANG';
+ if(/\bDF\b/.test(t))return 'DF';
+ if(/\b2D\b|\b3D\b/.test(t))return '2D';
+ if(/\bPR\b/.test(t))return 'PR';
+ if(/\bPA\b/.test(t))return 'PA';
+ if(/\bD\d*\b|DIAM/.test(t))return 'D';
+ if(/\bX\b/.test(t))return 'X';
+ if(/\bY\b/.test(t))return 'Y';
+ if(/\bZ\b/.test(t))return 'Z';
+ if(/\bM\b|MEAS|MED/.test(t))return 'M';
+ return '';
+}
+function featureType(c){
+ const ft=String(c.featureType||'').toUpperCase();
+ if(ft)return ft;
+ const raw=String(c.rawValue||'');
+ const dec=String(c.decodedValue||'');
+ const val=charText(c);
+ if(raw.includes('\uE36E')||dec.includes('⌖'))return 'POSITION';
+ if(raw.includes('\uE368')||dec.includes('⌒'))return 'PROFILE';
+ if(raw.includes('\uE369')||dec.includes('∠'))return 'ANGLE';
+ if(raw.includes('\uE362'))return 'FORM';
+ if(raw.includes('\uE365'))return 'ORIENTATION';
+ if(/\bX\b|\bY\b|\bZ\b/.test(val))return 'POSITION';
+ if(/[A-Z]-[A-Z]\s+[A-Z]/.test(val))return 'POSITION';
+ if(/^\s*[\d.,]+\s+[A-Z]\s+[A-Z](\s+[A-Z])?\s*$/.test(val))return 'POSITION';
+ if(/Ø|DIAM/.test(val))return 'DIAMETER';
+ if(/°|GRAD|ANG/.test(val))return 'ANGLE';
+ return 'DIMENSIONAL';
+}
+function itemBelongsToCota(it,c){
+ const wanted=String(c.number??'').trim();
+ if(!wanted)return true;
+ const got=String(it.cota??it.blockCota??it.globo??it.charNumber??'').trim();
+ return !got || got===wanted;
+}
+function pcText(it){
+ return [it.name,it.desc,it.label,it.type,it.kind,it.axis].map(x=>String(x||'')).join(' ').toUpperCase();
+}
+function chooseReportItems(c,items){
+ items=Array.isArray(items)?items:[];
+ let withValue=items.filter(it=>itemBelongsToCota(it,c)&&measured(it));
+ if(!withValue.length)return [];
+
+ // REGLA PC-DMIS REAL:
+ // Si en el bloque aparece "Dimensión de posición", se reporta solo TP, valor columna E.
+ const hasPositionText=withValue.some(it=>/DIMENSI[ÓO]N\s+DE\s+POSICI[ÓO]N|POSITION/.test(pcText(it)));
+ if(hasPositionText){
+   return withValue.filter(it=>axisOf(it)==='TP' || /\bTP\b/.test(pcText(it)));
+ }
+
+ // Si el bloque es Perfil de dimensión de superficie, reportar perfil y ubicación.
+ // Excluir planitud aunque esté dentro del bloque.
+ const hasSurfaceProfile=withValue.some(it=>/PERFIL\s+DE\s+DIMENSI[ÓO]N\s+DE\s+SUPERFICIE|SURFACE\s+PROFILE|PROFILE\s+OF\s+A\s+SURFACE/.test(pcText(it)));
+ if(hasSurfaceProfile){
+   return withValue.filter(it=>{
+     const t=pcText(it);
+     return (
+       /PERFIL\s+DE\s+DIMENSI[ÓO]N\s+DE\s+SUPERFICIE|SURFACE\s+PROFILE|PROFILE\s+OF\s+A\s+SURFACE|UBICACI[ÓO]N\s+DE\s+LA\s+DIMENSI[ÓO]N|LOCATION/.test(t)
+       && !/PLANITUD|FLATNESS/.test(t)
+     );
+   });
+ }
+
+ // Si hay TP aunque no venga el texto, reportar solo TP.
+ const tpAll=withValue.filter(it=>axisOf(it)==='TP' || /\bTP\b/.test(pcText(it)));
+ if(tpAll.length)return tpAll;
+
+ const ft=featureType(c);
+
+ // Posición sin TP: manual.
+ if(ft==='POSITION')return [];
+
+ // Perfil por featureType: PERF / UBIC, excluyendo planitud.
+ if(ft==='PROFILE'){
+   return withValue.filter(it=>{
+     const t=pcText(it);
+     return (axisOf(it)==='PERF' || axisOf(it)==='UBIC' || /PERFIL|PROFILE|UBICACI[ÓO]N|LOCATION/.test(t)) && !/PLANITUD|FLATNESS/.test(t);
+   });
+ }
+
+ // Ángulo
+ if(ft==='ANGLE'){
+   const ang=withValue.filter(it=>axisOf(it)==='ANG' || axisOf(it)==='A');
+   if(ang.length)return ang;
+ }
+
+ // Diámetro
+ if(ft==='DIAMETER' || /Ø|DIAM/.test(charText(c))){
+   const d=withValue.filter(it=>axisOf(it)==='D');
+   if(d.length)return d;
+ }
+
+ // Dimensional normal: D/DIM/DIST/LONG, excluyendo auxiliares geométricos.
+ const dim=withValue.filter(it=>{
+   const ax=axisOf(it), t=pcText(it);
+   return (ax==='D' || /DIM|DIST|LONG|LENGTH/.test(t)) && !['TP','DF','2D','PR','PA','X','Y','Z'].includes(ax);
+ });
+ if(dim.length)return dim;
+
+ const m=withValue.filter(it=>axisOf(it)==='M');
+ if(m.length)return m;
+
+ return withValue.filter(it=>!['TP','DF','2D','PR','PA','X','Y','Z'].includes(axisOf(it)));
+}
+function resultValues(c,piece){
+ const items=allItems(c,piece);
+ return chooseReportItems(c,items).map(measured).filter(Boolean);
+}
+function pieceStatus(c,piece){
+ const r=pieceResult(c,piece);
+ const mv=manualValue(c,piece);
+ if(!r && String(mv||'').trim()) return 'MANUAL';
+ if(!r) return 'PEND.';
+ const selected=chooseReportItems(c, allItems(c,piece));
+ if(!selected.length){return String(mv||'').trim() ? 'MANUAL' : 'PEND.';}
+ const nok=selected.some(it=>{let x=Math.abs(num(it.outTol));return Number.isFinite(x)&&x>0.000001;});
+ return nok ? 'NOK' : 'OK';
+}
+function statusOf(c){
+ const pieces=pieceLabels(loadProject()||{characteristics:[c]});
+ if(!pieces.length)return 'PEND.';
+ const sts=pieces.map(p=>pieceStatus(c,p));
+ if(sts.includes('NOK'))return 'NOK';
+ if(sts.includes('OK'))return 'OK';
+ if(sts.includes('MANUAL'))return 'MANUAL';
+ return 'PEND.';
+}
+function setManual(n,piece,val){
+ const p=loadProject(); p.manualResults=p.manualResults||{}; p.manualResults[String(n)]=p.manualResults[String(n)]||{}; p.manualResults[String(n)][String(piece)]=val; saveProject(p);
+}
+function resultCell(c,piece){
+ const autoVals=resultValues(c,piece);
+ const mv=manualValue(c,piece);
+ const vals = mv!=='' ? String(mv).split(/\n|\/|;/).map(x=>x.trim()).filter(Boolean) : autoVals;
+ const st=pieceStatus(c,piece);
+ const red=st==='NOK' ? ' nokVal' : '';
+ if(vals.length){
+   return `<div class="resultStack">${vals.map((v,i)=>`<input class="manualInput${red} ${mv!==''?'override':''}" value="${esc(v)}" onchange="const arr=Array.from(this.closest('.resultStack').querySelectorAll('input')).map(x=>x.value).filter(Boolean);setManual('${esc(c.number)}','${esc(piece)}',arr.join('\\n'))">`).join('')}</div>`;
+ }
+ return `<div class="resultStack"><input class="manualInput manualEmpty" value="" placeholder="Manual" onchange="setManual('${esc(c.number)}','${esc(piece)}',this.value)"></div>`;
+}
+function statusPill(st){
+ const cls=st==='NOK'?'nok':(st==='PEND.'?'warn':'');
+ return `<span class="pill ${cls}">${esc(st)}</span>`;
+}
+function selectedPieces(p, fixedTwo){
+ const labels=pieceLabels(p);
+ if(fixedTwo) return ['1','2'];
+ const n=parseInt(localStorage.getItem('paramio_piece_count')||'',10);
+ if(Number.isFinite(n)&&n>0){let out=[];for(let i=1;i<=n;i++)out.push(String(i));return out;}
+ return labels.length?labels:['1'];
+}
+function piecesControl(p){
+ const labels=pieceLabels(p); const max=labels.length||2;
+ return `<label>Nº piezas documento <input id="pieceCount" type="number" min="1" value="${esc(localStorage.getItem('paramio_piece_count')||max)}" onchange="localStorage.setItem('paramio_piece_count',this.value);render()"></label><span class="small">Detectadas: ${esc(labels.join(', ')||'sin registros')}</span>`;
+}
+</script></head><body><div class="app"><script>document.write(renderShell('kcs'))</script><main class="main"><header class="top"><div><h1>KCS</h1><p>Selección de KCS con reglas PC-DMIS: posición TP y perfil superficie/ubicación.</p></div><div class="actions noPrint"><a class="btn light" href="index.html">Cargar Excel</a><button class="btn" onclick="window.print()">Imprimir</button></div></header><div id="root"></div></main></div><script>
+let p=loadProject();const root=document.getElementById('root');
+function setKcs(n,checked){p=loadProject(); const c=p.characteristics.find(x=>String(x.number)===String(n)); if(c){c.kcs=checked; saveProject(p);}}
+function selectByStatus(status){p=loadProject(); p.characteristics.forEach(c=>{ if(status==='NOK' && statusOf(c)==='NOK') c.kcs=true; if(status==='ALL') c.kcs=true; if(status==='NONE') c.kcs=false;}); saveProject(p); render();}
+function render(){
+ p=loadProject(); if(!p||!p.characteristics.length){root.innerHTML=noDataHtml();return;}
+ const chars=filterRows(p.characteristics), selected=p.characteristics.filter(c=>c.kcs).length, pieces=selectedPieces(p,false);
+ root.innerHTML=`<section class="card"><div class="docHead"><div><img class="logoSmall" src="assets/logo_paramio.png"><h2>Selección KCS</h2><p>Marca las cotas críticas. Las celdas sin medición se pueden rellenar manualmente.</p></div>${metaHtml(p)}</div></section>
+ <section class="card noPrint"><div class="toolbar"><input id="filter" type="search" placeholder="Filtrar globo / característica" oninput="window.__lastFilter=this.value;render()"><div>${piecesControl(p)}</div><div class="actions"><button class="btn" onclick="selectByStatus('NOK')">Marcar NOK</button><button class="btn light" onclick="selectByStatus('ALL')">Marcar todas</button><button class="btn light" onclick="selectByStatus('NONE')">Limpiar KCS</button></div></div></section>
+ <section class="card"><div class="statGrid"><div class="stat"><b>${p.characteristics.length}</b><span>Cotas totales</span></div><div class="stat"><b>${selected}</b><span>KCS seleccionadas</span></div><div class="stat"><b>${p.characteristics.filter(c=>statusOf(c)==='NOK').length}</b><span>NOK</span></div><div class="stat"><b>${p.characteristics.filter(c=>statusOf(c)==='PEND.').length}</b><span>Pend.</span></div><div class="stat"><b>${pieceLabels(p).length}</b><span>Piezas detectadas</span></div></div></section>
+ <section class="card"><h2>Seleccionar KCS</h2><div class="tableWrap"><table><thead><tr><th>KCS</th><th>Globo</th><th>Característica</th><th>Especificación</th>${pieces.map(x=>`<th>Registro pieza ${esc(x)}</th><th>Estado pieza ${esc(x)}</th>`).join('')}</tr></thead><tbody>${chars.map(c=>`<tr><td><input class="kcsBox" type="checkbox" ${c.kcs?'checked':''} onchange="setKcs('${esc(c.number)}',this.checked)"></td><td>${esc(c.number)}</td><td>${esc(cleanChar(c.value))}</td><td>${specText(c)}</td>${pieces.map(x=>`<td class="result">${resultCell(c,x)}</td><td>${statusPill(pieceStatus(c,x))}</td>`).join('')}</tr>`).join('')}</tbody></table></div></section>
+ <section class="card"><h2>KCS seleccionadas</h2>${selected?`<div class="tableWrap"><table><thead><tr><th>Globo</th><th>Característica</th>${pieces.map(x=>`<th>Registro pieza ${esc(x)}</th><th>Estado pieza ${esc(x)}</th>`).join('')}</tr></thead><tbody>${p.characteristics.filter(c=>c.kcs).map(c=>`<tr><td>${esc(c.number)}</td><td>${esc(cleanChar(c.value))}</td>${pieces.map(x=>`<td class="result">${resultCell(c,x)}</td><td>${statusPill(pieceStatus(c,x))}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`:'<p>No hay KCS seleccionadas.</p>'}</section>`;
+ const f=document.getElementById('filter'); if(f)f.value=(window.__lastFilter||'');
+}
+render();
+
+
+
+
+/* ===== V168 LECTURA LIMPIA Y FILTRO FINAL ===== */
+function v168Norm(s){return String(s??'').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();}
+function v168Val(it){return String(it?.measured??it?.value??it?.result??it?.valor??'').trim();}
+function v168Text(it){try{return v168Norm(JSON.stringify(it||{}));}catch(e){return v168Norm(it);}}
+function v168Axis(it){
+ const k=v168Norm(it?.axis||it?.kind);
+ if(k)return k;
+ const t=v168Text(it);
+ if(/\bTP\b|TRUE\s*POSITION|DIMENSION\s+DE\s+POSICION/.test(t))return'TP';
+ if(/PERFIL\s+DE\s+DIMENSION\s+DE\s+SUPERFICIE|SURFACE\s+PROFILE|PROFILE\s+OF\s+A\s+SURFACE/.test(t))return'PERF';
+ if(/UBICACION\s+DE\s+LA\s+DIMENSION|LOCATION/.test(t))return'UBIC';
+ if(/PLANITUD|FLATNESS/.test(t))return'FLATNESS';
+ if(/\bDF\b/.test(t))return'DF';
+ if(/\b2D\b|\b3D\b/.test(t))return'2D';
+ if(/\bPA\b/.test(t))return'PA';
+ if(/\bPR\b/.test(t))return'PR';
+ if(/\bX\b/.test(t))return'X';
+ if(/\bY\b/.test(t))return'Y';
+ if(/\bZ\b/.test(t))return'Z';
+ if(/\bD\d*\b|\bDIAM/.test(t))return'D';
+ if(/\bM\b|MEDIDO|MEASURED|MEDICION/.test(t))return'M';
+ return'';
+}
+function v168CharText(c){return v168Norm(c?.value||c?.characteristic||c?.caracteristica||c?.rawValue||'');}
+function v168IsPosition(c,items){
+ const s=v168CharText(c).replace(/,/g,'.');
+ const all=(items||[]).map(v168Text).join(' ');
+ if(/\bX\b|\bY\b|\bZ\b/.test(s))return true;
+ if(/[A-Z]-[A-Z]\s+[A-Z]/.test(s))return true;
+ if(/^\s*[\d.]+\s+[A-Z]\s+[A-Z](\s+[A-Z])?\s*$/.test(s))return true;
+ if(/POSICION|POSITION|DIMENSION\s+DE\s+POSICION|TRUE\s*POSITION/.test(all))return true;
+ if((items||[]).some(it=>v168Axis(it)==='TP'))return true;
+ return false;
+}
+function v168PickItems(c,piece){
+ const r=(c.results||{})[piece] || (c.results||{})[String(piece)] || null;
+ let items=[];
+ if(r && Array.isArray(r.items)) items=r.items;
+ else if(r && Array.isArray(r.rawItems)) items=r.rawItems;
+ else return [];
+ items=items.filter(it=>v168Val(it));
+ if(!items.length)return [];
+
+ if(v168IsPosition(c,items)){
+   const tp=items.filter(it=>v168Axis(it)==='TP' || /\bTP\b/.test(v168Text(it)));
+   if(tp.length)return tp;
+   return [items[items.length-1]];
+ }
+
+ const all=items.map(v168Text).join(' ');
+ if(/PERFIL\s+DE\s+DIMENSION\s+DE\s+SUPERFICIE|SURFACE\s+PROFILE|PROFILE\s+OF\s+A\s+SURFACE/.test(all)){
+   const prof=items.filter(it=>{
+     const a=v168Axis(it), t=v168Text(it);
+     return (a==='PERF'||a==='UBIC'||/PERFIL|PROFILE|UBICACION|LOCATION/.test(t))
+       && a!=='FLATNESS'
+       && !/PLANITUD|FLATNESS/.test(t);
+   });
+   if(prof.length)return prof;
+ }
+
+ const d=items.filter(it=>v168Axis(it)==='D');
+ if(d.length)return d;
+ const m=items.filter(it=>v168Axis(it)==='M');
+ if(m.length)return m;
+
+ const clean=items.filter(it=>!['X','Y','Z','DF','2D','PA','PR','FLATNESS','TP'].includes(v168Axis(it)));
+ return clean.length?clean:items;
+}
+function resultValues(c,piece){
+ return v168PickItems(c,piece).map(v168Val).filter(Boolean);
+}
+function pieceStatus(c,piece){
+ const items=v168PickItems(c,piece);
+ const mv=typeof manualValue==='function'?manualValue(c,piece):'';
+ if(!items.length)return String(mv||'').trim()?'MANUAL':'PEND.';
+ const nok=items.some(it=>{
+   const x=Math.abs(typeof num==='function'?num(it.outTol):Number(String(it.outTol||'').replace(',','.').replace(/[^0-9.\-]/g,'')));
+   return Number.isFinite(x)&&x>0.000001;
+ });
+ return nok?'NOK':'OK';
+}
+
+</script><div style="position:fixed;right:10px;bottom:410px;background:#0f172a;color:white;padding:8px 10px;border-radius:10px;font:12px Arial;z-index:999999">V168 lectura limpia V167</div></body></html>

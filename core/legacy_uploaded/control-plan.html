@@ -1,0 +1,132 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Plan de control</title><style>
+:root{--navy:#071a3a;--blue:#315cff;--green:#15915b;--red:#d93025;--orange:#ee8a31;--line:#d7e0ef;--bg:#f3f6fb;--muted:#5f6f89}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--navy)}
+.app{display:grid;grid-template-columns:240px 1fr;min-height:100vh}.side{background:#071a3a;color:#fff;padding:18px}.logo{background:#fff;border-radius:16px;padding:14px;margin-bottom:18px}.logo img{width:100%}
+.nav a{display:block;color:#fff;text-decoration:none;font-weight:800;padding:12px;border-radius:10px;margin:6px 0}.nav a.active,.nav a:hover{background:#315cff}
+.main{padding:24px}.top{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:18px}.top h1{margin:0;font-size:30px}.top p{margin:6px 0;color:var(--muted)}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:16px;box-shadow:0 12px 30px rgba(7,26,58,.08)}
+.btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;border:0;border-radius:10px;padding:12px 16px;background:#315cff;color:#fff;font-weight:900;cursor:pointer}.btn.green{background:#15915b}.btn.light{background:#fff;color:#071a3a;border:1px solid #c8d4e6}.btn.orange{background:#efb27f;color:#071a3a}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.pill{display:inline-block;border-radius:99px;padding:4px 9px;font-weight:900;font-size:12px;background:#eaf7f0;color:#0a8a47}.pill.nok{background:#ffecec;color:#c92727}.pill.warn{background:#fff7ea;color:#8b4a00}.pill.kcs{background:#fff0f6;color:#b0005a}
+.tableWrap{overflow:auto;border:1px solid var(--line);border-radius:14px}table{border-collapse:collapse;width:100%;min-width:1120px;background:#fff}th{background:#cdd8ea;color:#071a3a;font-size:12px}td,th{border:1px solid #c8d4e6;padding:8px;vertical-align:middle;font-size:12px}td.result{text-align:center;font-weight:900;white-space:pre-line}
+.manualInput{width:100%;min-width:90px;border:1px solid #f2c58b!important;background:#fffdf5;border-radius:8px;padding:7px;text-align:center;font-weight:900}
+.docHead{display:flex;justify-content:space-between;gap:20px;align-items:flex-start}.metaBox{text-align:right;font-weight:800;font-size:12px}.notice{border:1px solid #f2c58b;background:#fff7ea;color:#8b4a00;border-radius:12px;padding:12px;font-size:13px;margin-top:12px}
+.logoSmall{height:58px}.statGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px}.stat b{font-size:24px}.stat span{display:block;color:var(--muted);font-size:12px}
+input[type="search"],select,input[type="number"]{border:1px solid #c8d4e6;border-radius:10px;padding:10px;min-width:160px}.kcsBox{width:18px;height:18px}
+.toolbar{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}.small{font-size:12px;color:var(--muted)}
+.planTitle{background:#efb27f;border:1px solid #111;text-align:center;font-size:24px;font-weight:900;padding:10px}.metaGrid{display:grid;grid-template-columns:120px 1fr 120px 1fr 120px 1fr;border-left:1px solid #111;border-top:1px solid #111}.metaGrid div{border-right:1px solid #111;border-bottom:1px solid #111;padding:7px;font-weight:900}.metaGrid .lab{background:#f8fafc}
+.opHeader{background:#071a3a!important;color:#fff!important;font-weight:900;text-align:center}.typeBadge{display:inline-flex;border-radius:99px;padding:3px 7px;font-weight:900;font-size:11px;background:#eaf7f0;color:#0a8a47}.typeBadge.kcs{background:#fff0f6;color:#b0005a}.typeBadge.proc{background:#eaf2ff;color:#1d4ed8}.typeBadge.doc{background:#fff7d6;color:#a16207}
+@media(max-width:1000px){.app{grid-template-columns:1fr}.statGrid{grid-template-columns:1fr}.metaBox{text-align:left}}
+@media print{.side,.actions,.noPrint,.toolbar{display:none!important}.app{display:block}.main{padding:0}.card{box-shadow:none;border:0}.tableWrap{border:0}body{background:#fff}table{min-width:0}td,th{font-size:8px;padding:4px}.manualInput{border:0!important;background:transparent!important}}
+</style><script>
+const RUNTIME_KEYS=['paramio_oem_project_runtime_v103','paramio_oem_project_runtime_v102','paramio_oem_project_state_latest','paramio_oem_project_v79','paramio_matrix_plan_source_v122'];
+function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
+function normalizeProject(p){
+ p=p||{};
+ if(!p.characteristics&&p.stableState&&p.stableState.characteristics)p.characteristics=p.stableState.characteristics;
+ if(!p.meta&&p.stableState&&p.stableState.meta)p.meta=p.stableState.meta;
+ p.meta=p.meta||{}; p.characteristics=Array.isArray(p.characteristics)?p.characteristics:[];
+ p.manualResults=p.manualResults||{};
+ p.characteristics.forEach(c=>{ if(!c.results)c.results={}; if(typeof c.kcs==='undefined')c.kcs=false; });
+ return p;
+}
+function loadProject(){
+ let best=null,bestScore=-1;
+ for(const store of [localStorage,sessionStorage]){
+   for(let i=0;i<store.length;i++){
+     const k=store.key(i);
+     try{
+       const raw=store.getItem(k); if(!raw||raw[0]!=='{')continue;
+       const p=normalizeProject(JSON.parse(raw));
+       const score=(p.characteristics?.length||0)+(p.controlPlan?.length||0);
+       if(score>bestScore && (p.characteristics?.length||p.meta)){best=p;bestScore=score;}
+     }catch(e){}
+   }
+ }
+ if(best)return best;
+ for(const store of [localStorage,sessionStorage]){
+   for(const k of RUNTIME_KEYS){
+     try{const raw=store.getItem(k);if(raw){const p=normalizeProject(JSON.parse(raw));if(p&&(p.characteristics||p.meta))return p;}}catch(e){}
+   }
+ }
+ return null;
+}
+function saveProject(p){p=normalizeProject(p);const s=JSON.stringify(p);RUNTIME_KEYS.forEach(k=>{try{localStorage.setItem(k,s);sessionStorage.setItem(k,s)}catch(e){}});}
+function renderShell(active){return `<aside class="side"><div class="logo"><img src="assets/logo_paramio.png" alt="Paramio"></div><nav class="nav">
+<a class="${active==='home'?'active':''}" href="index.html">⌂ Inicio / Cargar Excel</a>
+<a class="${active==='isir'?'active':''}" href="isir.html">▦ ISIR</a>
+<a class="${active==='dimensional'?'active':''}" href="dimensional.html">▤ Dimensional</a>
+<a class="${active==='kcs'?'active':''}" href="kcs.html">◆ Seleccionar KCS</a>
+<a class="${active==='plan'?'active':''}" href="control-plan.html">▣ Plan de control</a>
+<a href="flowchart.html">↔ Flowchart</a>
+<a href="rules.html">⚙ Reglas</a>
+</nav></aside>`;}
+function statusOf(c){
+ let rs=Object.values(c.results||{}), hasManual=false;
+ const p=loadProject(); const mr=p?.manualResults?.[String(c.number)]||{};
+ hasManual=Object.values(mr).some(v=>String(v||'').trim());
+ if(!rs.length && !hasManual)return 'PEND.';
+ return rs.every(r=>r.ok!==false)?'OK':'NOK';
+}
+function noDataHtml(){return `<div class="card"><h2>No hay datos cargados</h2><p>Primero vuelve a Inicio, carga Excel Inspection + PC-DMIS y pulsa <b>Procesar documentación</b>.</p><div class="actions"><a class="btn green" href="index.html">Ir a cargar Excel</a></div></div>`;}
+function metaHtml(p){const m=p.meta||{};return `<div class="metaBox">Cliente: ${esc(m.client||'')}<br>Referencia: ${esc(m.reference||'')}<br>Pieza: ${esc(m.partName||'')}<br>Rev.: ${esc(m.revision||'')}<br>Fecha: ${esc(m.date||'')}</div>`;}
+function cleanChar(v){return String(v??'').replace(/[\uE000-\uF8FF�□▯▾◧◎⌖◴]/g,'').replace(/\s+/g,' ').trim();}
+function specText(c){return `LI ${esc(c.lower??'')} / LS ${esc(c.upper??'')} ${esc(c.units||'')}`;}
+function isKcs(c){return !!c.kcs;}
+function filterRows(chars){const q=(document.getElementById('filter')?.value||'').toLowerCase(); if(!q)return chars; return chars.filter(c=>[c.number,cleanChar(c.value),c.nominal,c.lower,c.upper,c.units,statusOf(c)].join(' ').toLowerCase().includes(q));}
+function pieceLabels(p){
+ const set=new Set();
+ (p.characteristics||[]).forEach(c=>Object.keys(c.results||{}).forEach(k=>set.add(String(k).replace(/^P/i,''))));
+ Object.values(p.manualResults||{}).forEach(byPiece=>Object.keys(byPiece||{}).forEach(k=>set.add(String(k).replace(/^P/i,''))));
+ let arr=[...set].sort((a,b)=>(parseInt(a.replace(/\D/g,''))||0)-(parseInt(b.replace(/\D/g,''))||0));
+ return arr;
+}
+function resultValues(c,piece){
+ const r=(c.results||{})[piece] || (c.results||{})['P'+piece] || null;
+ if(!r)return [];
+ const vals=(r.items||[]).map(it=>String(it.measured??'').trim()).filter(Boolean);
+ return vals;
+}
+function manualValue(c,piece){
+ const p=loadProject(); return p?.manualResults?.[String(c.number)]?.[String(piece)] || '';
+}
+function setManual(n,piece,val){
+ const p=loadProject(); p.manualResults=p.manualResults||{}; p.manualResults[String(n)]=p.manualResults[String(n)]||{}; p.manualResults[String(n)][String(piece)]=val; saveProject(p);
+}
+function resultCell(c,piece){
+ const vals=resultValues(c,piece);
+ if(vals.length)return esc(vals.join(' / '));
+ const mv=manualValue(c,piece);
+ return `<input class="manualInput" value="${esc(mv)}" placeholder="Manual" onchange="setManual('${esc(c.number)}','${esc(piece)}',this.value)">`;
+}
+function selectedPieces(p, fixedTwo){
+ const labels=pieceLabels(p);
+ if(fixedTwo) return ['1','2'];
+ const n=parseInt(localStorage.getItem('paramio_piece_count')||'',10);
+ if(Number.isFinite(n)&&n>0){let out=[];for(let i=1;i<=n;i++)out.push(String(i));return out;}
+ return labels.length?labels:['1'];
+}
+function piecesControl(p){
+ const labels=pieceLabels(p); const max=labels.length||2;
+ return `<label>Nº piezas documento <input id="pieceCount" type="number" min="1" value="${esc(localStorage.getItem('paramio_piece_count')||max)}" onchange="localStorage.setItem('paramio_piece_count',this.value);render()"></label><span class="small">Detectadas: ${esc(labels.join(', ')||'sin registros')}</span>`;
+}
+</script></head><body><div class="app"><script>document.write(renderShell('plan'))</script><main class="main"><header class="top"><div><h1>Plan de control</h1><p>Recuperado con datos reales de Inspection y KCS seleccionadas.</p></div><div class="actions noPrint"><a class="btn light" href="index.html">Cargar Excel</a><button class="btn" onclick="window.print()">Imprimir</button></div></header><div id="root"></div></main></div><script>
+let p=loadProject();const root=document.getElementById('root');
+function render(){
+ p=loadProject(); if(!p||!p.characteristics.length){root.innerHTML=noDataHtml();return;}
+ const m=p.meta||{}, chars=p.characteristics;
+ const rows=chars.map(c=>`<tr><td>20</td><td>MECANIZADO</td><td>Centro mecanizado / torno / máquina asignada</td><td>${esc(c.number)}</td><td>${c.kcs?'<span class="typeBadge kcs">KCS</span>':'<span class="typeBadge">Producto</span>'}</td><td>${esc(cleanChar(c.value))}</td><td>Nominal ${esc(c.nominal)} · ${specText(c)}</td><td>Pauta de control</td><td>CMM / micrómetro / calibre según cota</td><td>3</td><td>Inicio + 1h / según pauta</td><td>Producción / Calidad</td><td>Ajustar máquina; bloquear lote; revisar última pieza OK</td></tr>`).join('');
+ root.innerHTML=`<section class="card"><div class="planTitle">PLAN DE CONTROL</div><div class="metaGrid"><div class="lab">Referencia</div><div>${esc(m.reference||'')}</div><div class="lab">Revisión</div><div>${esc(m.revision||'')}</div><div class="lab">Cliente</div><div>${esc(m.client||'')}</div><div class="lab">Pieza</div><div>${esc(m.partName||'')}</div><div class="lab">Fecha</div><div>${esc(m.date||'')}</div><div class="lab">Tipo</div><div>Producción</div></div></section>
+ <section class="card"><div class="tableWrap"><table><thead><tr><th>Nº OP</th><th>Descripción operación</th><th>Máquina / útiles</th><th>Globo</th><th>Tipo</th><th>Característica / control</th><th>Especificación / tolerancia</th><th>Método</th><th>Instrumento</th><th>Muestra</th><th>Frecuencia</th><th>Realizado por</th><th>Plan reacción</th></tr></thead><tbody>
+ <tr class="opHeader"><td colspan="13">OP 10 · RECEPCIÓN MP</td></tr>
+ <tr><td>10</td><td>RECEPCIÓN MP</td><td>TRANSPALET / ALMACÉN RECEPCIÓN</td><td></td><td><span class="typeBadge">Producto</span></td><td>Conformidad con pedido</td><td>Albarán correcto / Nº piezas correcto</td><td>Visual / RPS</td><td>Pedido / albarán / certificado</td><td>100%</td><td>Cada lote</td><td>Logística / Calidad</td><td>Bloquear material si NOK</td></tr>
+ <tr class="opHeader"><td colspan="13">OP 15 · PREPARACIÓN DE MÁQUINAS, HERRAMIENTAS, UTILLAJES Y GARRAS</td></tr>
+ <tr><td>15</td><td>PREPARACIÓN DE MÁQUINAS</td><td>Máquina / utillaje aplicable</td><td></td><td><span class="typeBadge proc">Proceso</span></td><td>Localización de utillaje y herramientas</td><td>Listado ubicación / tabla herramientas</td><td>Checklist</td><td>Checklist arranque</td><td>1</td><td>Inicio lote</td><td>Responsable de línea</td><td>Parar preparación; corregir; avisar producción</td></tr>
+ <tr class="opHeader"><td colspan="13">OP 20 · MECANIZADO · Cotas desde Inspection</td></tr>${rows}
+ <tr class="opHeader"><td colspan="13">OP 30 · REBARBADO + SOPLADO</td></tr>
+ <tr><td>30</td><td>REBARBADO + SOPLADO</td><td>Banco rebarbado / soplado</td><td></td><td><span class="typeBadge proc">Proceso</span></td><td>Ausencia de rebabas / soplado correcto</td><td>Sin rebabas / ausencia de viruta</td><td>Visual / aire</td><td>Visual / aire comprimido</td><td>100%</td><td>Cada pieza</td><td>Producción</td><td>Repetir rebarbado; segregar pieza</td></tr>
+ <tr class="opHeader"><td colspan="13">OP 50 · EMBALAJE / EXPEDICIÓN</td></tr>
+ <tr><td>50</td><td>EMBALAJE / EXPEDICIÓN</td><td>Almacén / banco embalaje</td><td></td><td><span class="typeBadge doc">Documental</span></td><td>Embalaje, identificación y documentación</td><td>Especificación cliente / RPS</td><td>Visual / documental</td><td>Etiqueta / albarán / RPS</td><td>100%</td><td>Cada envío</td><td>Logística</td><td>Retener envío; corregir documentación</td></tr>
+ </tbody></table></div></section>`;
+}
+render();
+</script></body></html>
