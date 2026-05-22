@@ -2,12 +2,238 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Paramio Inicio V218</title>
 
+  <!-- CSS principal del proyecto -->
   <link rel="stylesheet" href="assets/platform.css">
 
+  <!-- Fallback visual GitHub Pages: NO sustituye platform.css, solo evita HTML desnudo si no carga -->
+  <style id="paramio-github-fallback-css">
+    :root{
+      --navy:#071a3a;
+      --navy2:#0f2649;
+      --line:#d7e0ec;
+      --soft:#f5f7fb;
+      --text:#071a3a;
+      --muted:#52647d;
+      --accent:#efb27f;
+      --ok:#e7f7ee;
+      --bad:#fdecec;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      background:#eef3f8;
+      color:var(--text);
+      font-size:14px;
+    }
+    .app{
+      min-height:100vh;
+      display:grid;
+      grid-template-columns:260px 1fr;
+    }
+    .sidebar{
+      background:linear-gradient(180deg,#071a3a,#0f2649);
+      color:#fff;
+      padding:22px 16px;
+      min-height:100vh;
+    }
+    .brand{
+      font-weight:900;
+      font-size:18px;
+      letter-spacing:.08em;
+      margin-bottom:22px;
+      border-bottom:1px solid rgba(255,255,255,.2);
+      padding-bottom:14px;
+    }
+    .nav{
+      display:grid;
+      gap:8px;
+    }
+    .nav a{
+      color:#fff;
+      text-decoration:none;
+      padding:10px 12px;
+      border-radius:10px;
+      background:rgba(255,255,255,.06);
+      font-weight:700;
+    }
+    .nav a.active,
+    .nav a:hover{
+      background:#efb27f;
+      color:#071a3a;
+    }
+    .main{
+      padding:26px;
+      max-width:1500px;
+      width:100%;
+    }
+    .top{
+      display:flex;
+      justify-content:space-between;
+      gap:18px;
+      align-items:flex-start;
+      margin-bottom:18px;
+    }
+    h1{
+      margin:0 0 8px;
+      font-size:28px;
+      color:#071a3a;
+    }
+    h2{
+      margin:0 0 14px;
+      font-size:20px;
+      color:#071a3a;
+    }
+    p{margin:0;color:#42566f}
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      background:#071a3a;
+      color:#fff;
+      border-radius:999px;
+      padding:8px 12px;
+      font-weight:900;
+      font-size:12px;
+      white-space:nowrap;
+    }
+    .card{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:18px;
+      box-shadow:0 10px 30px rgba(7,26,58,.06);
+      margin-bottom:16px;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(180px,1fr));
+      gap:14px;
+    }
+    label{
+      display:block;
+      font-size:11px;
+      font-weight:900;
+      color:#52647d;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+      margin-bottom:5px;
+    }
+    input,select,textarea{
+      width:100%;
+      border:1px solid #bac8da;
+      border-radius:8px;
+      padding:9px 10px;
+      background:#fff;
+      color:#071a3a;
+      font-weight:700;
+    }
+    .uploadGrid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:16px;
+    }
+    .fileList{
+      margin-top:12px;
+      border:1px solid #d7e0ec;
+      border-radius:12px;
+      overflow:hidden;
+    }
+    .fileRow{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      padding:9px 10px;
+      border-bottom:1px solid #e7edf5;
+      background:#f9fbfe;
+    }
+    .fileRow:last-child{border-bottom:0}
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:12px;
+      margin-bottom:16px;
+    }
+    .stat{
+      border:1px solid #d7e0ec;
+      border-radius:14px;
+      background:#f7f9fc;
+      padding:14px;
+      min-height:76px;
+    }
+    .stat b{
+      display:block;
+      font-size:26px;
+      color:#071a3a;
+      line-height:1;
+    }
+    .stat span{
+      display:block;
+      margin-top:7px;
+      color:#52647d;
+      font-weight:800;
+      font-size:12px;
+    }
+    .actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-bottom:12px;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:38px;
+      padding:9px 14px;
+      border-radius:10px;
+      border:1px solid #071a3a;
+      background:#071a3a;
+      color:#fff;
+      font-weight:900;
+      text-decoration:none;
+      cursor:pointer;
+      font-size:13px;
+    }
+    .btn.light{background:#fff;color:#071a3a}
+    .btn.green{background:#17804c;border-color:#17804c}
+    .btn.red{background:#b42318;border-color:#b42318}
+    .btn.disabled,
+    .disabled{
+      opacity:.45;
+      pointer-events:none;
+    }
+    .notice{
+      border-left:5px solid #efb27f;
+      background:#fff7ed;
+      padding:12px;
+      border-radius:10px;
+      color:#071a3a;
+      font-weight:700;
+    }
+    .okNotice{background:var(--ok);border-left-color:#17804c}
+    .badNotice{background:var(--bad);border-left-color:#b42318}
+    @media(max-width:1000px){
+      .app{grid-template-columns:1fr}
+      .sidebar{min-height:auto}
+      .grid,.uploadGrid,.stats{grid-template-columns:1fr}
+      .top{display:block}
+      .main{padding:16px}
+    }
+    @media print{
+      .sidebar,.actions,.paramio-lang-switch{display:none!important}
+      .app{display:block}
+      .main{padding:0}
+      .card{box-shadow:none;break-inside:avoid}
+    }
+  </style>
+
+  <!-- Librerías externas -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+  <!-- CORE Paramio: mantener orden -->
   <script src="core/storage.js"></script>
   <script src="core/type-normalizer.js"></script>
   <script src="core/parser-inspection.js"></script>
@@ -25,614 +251,596 @@
   <script src="core/result-engine.js"></script>
   <script src="core/diagnostics-engine.js"></script>
 
-
-<script>
-(function(){
-  if (typeof window.esc !== "function") {
-    window.esc = function(value){
-      return String(value ?? "").replace(/[&<>"']/g, function(ch){
-        return ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"})[ch];
-      });
-    };
-  }
-
-  if (typeof window.renderShell !== "function") {
-    window.renderShell = function(active){
-      const item = function(href, key, label){
-        return '<a class="navItem '+(active===key?'active':'')+'" href="'+href+'">'+label+'</a>';
+  <!-- Fallbacks mínimos GitHub -->
+  <script>
+    if (typeof window.esc !== "function") {
+      window.esc = function(v){
+        return String(v ?? "").replace(/[&<>"']/g, function(m){
+          return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m];
+        });
       };
-      return [
-        '<aside class="side">',
-          '<div class="brand"><b>PARAMIO</b><span>OEM Platform</span></div>',
-          '<nav class="nav">',
-            item('index.html','home','Inicio / Cargar'),
-            item('diagnostico.html','diagnostico','Diagnóstico'),
-            item('isir.html','isir','ISIR'),
-            item('dimensional.html','dimensional','Dimensional'),
-            item('kcs.html','kcs','KCS'),
-            item('control-plan.html','control-plan','Plan de Control'),
-            item('flowchart.html','flowchart','Flowchart'),
-          '</nav>',
-        '</aside>'
-      ].join('');
-    };
-  }
-})();
-</script>
+    }
 
-  <style>
-
-.paramio-cad-doc{
-  margin-top:16px;
-  border:1px solid #b9c7d9;
-  background:#ffffff;
-  display:grid;
-  grid-template-columns:1.25fr .9fr;
-  min-height:360px;
-}
-.paramio-cad-doc .cad-preview{
-  background:linear-gradient(135deg,#0f2649,#183b68);
-  color:#fff;
-  padding:22px;
-  display:flex;
-  flex-direction:column;
-  gap:14px;
-}
-.paramio-cad-doc .cad-title{
-  font-size:22px;
-  font-weight:900;
-  letter-spacing:.08em;
-  border-bottom:1px solid rgba(255,255,255,.25);
-  padding-bottom:10px;
-}
-.paramio-cad-doc .cad-image-box{
-  flex:1;
-  min-height:230px;
-  border:1px dashed rgba(255,255,255,.35);
-  background:rgba(255,255,255,.06);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  padding:18px;
-  overflow:hidden;
-}
-.paramio-cad-doc .cad-image-box img{
-  max-width:100%;
-  max-height:100%;
-  object-fit:contain;
-  background:#fff;
-}
-.paramio-cad-doc .cad-side{
-  padding:22px;
-  background:#f7f9fc;
-  border-left:1px solid #c8d4e6;
-}
-.paramio-cad-doc .cad-side h3{
-  margin:0 0 12px;
-  color:#061b3d;
-  font-size:16px;
-  letter-spacing:.04em;
-}
-.paramio-cad-doc .cad-field{
-  margin-bottom:12px;
-  border-bottom:1px solid #d8e0ec;
-  padding-bottom:8px;
-}
-.paramio-cad-doc .cad-field label{
-  display:block;
-  font-size:10px;
-  color:#52647d;
-  font-weight:900;
-  text-transform:uppercase;
-  letter-spacing:.06em;
-  margin-bottom:4px;
-}
-.paramio-cad-doc .cad-field div{
-  font-weight:800;
-  color:#0a2348;
-}
-.paramio-cad-doc .cad-actions{
-  display:grid;
-  grid-template-columns:1fr;
-  gap:10px;
-  margin-top:16px;
-}
-.paramio-cad-doc input[type=file]{
-  width:100%;
-  border:1px solid #bac8da;
-  padding:8px;
-  background:#fff;
-}
-.paramio-cad-doc .cad-note{
-  font-size:12px;
-  line-height:1.45;
-  color:#42566f;
-  background:#fff;
-  border-left:4px solid #efb27f;
-  padding:10px;
-  margin-top:12px;
-}
-@media(max-width:1000px){
-  .paramio-cad-doc{grid-template-columns:1fr}
-  .paramio-cad-doc .cad-side{border-left:0;border-top:1px solid #c8d4e6}
-}
-@media print{
-  .paramio-cad-doc input{display:none}
-  .paramio-cad-doc{break-inside:avoid}
-}
-
-  </style>
-
-  <style id="paramio-v250-lang-style">
-
-.paramio-lang-switch{
- position:fixed;right:18px;bottom:18px;z-index:99999;
- display:flex;gap:6px;align-items:center;background:#071a3a;color:#fff;
- border:1px solid #314d78;border-radius:999px;padding:7px 9px;
- box-shadow:0 8px 24px rgba(7,26,58,.25);font-family:Arial,sans-serif;
-}
-.paramio-lang-switch button{
- border:0;border-radius:999px;padding:6px 10px;font-weight:900;cursor:pointer;
- background:#fff;color:#071a3a;font-size:12px;
-}
-.paramio-lang-switch button.active{background:#efb27f;color:#071a3a}
-@media print{.paramio-lang-switch{display:none!important}}
-
-  </style>
+    if (typeof window.renderShell !== "function") {
+      window.renderShell = function(active){
+        const items = [
+          ["home","Inicio / Cargar","index.html"],
+          ["diagnostico","Diagnóstico","diagnostico.html"],
+          ["isir","ISIR","isir.html"],
+          ["dimensional","Dimensional","dimensional.html"],
+          ["kcs","KCS","kcs.html"],
+          ["control","Plan de Control","control-plan.html"],
+          ["flowchart","Flowchart","flowchart.html"]
+        ];
+        return '<aside class="sidebar">' +
+          '<div class="brand">PARAMIO OEM</div>' +
+          '<nav class="nav">' +
+          items.map(function(it){
+            return '<a class="'+(active===it[0]?'active':'')+'" href="'+it[2]+'">'+it[1]+'</a>';
+          }).join("") +
+          '</nav></aside>';
+      };
+    }
+  </script>
 </head>
+
 <body>
   <div class="app">
-    <div id="paramioShellMount"></div>
-
-<script>
-(function(){
-  const mount = document.getElementById('paramioShellMount');
-  if (!mount) return;
-  try {
-    mount.outerHTML = window.renderShell('home');
-  } catch (err) {
-    console.error('Error cargando renderShell:', err);
-    mount.outerHTML = window.renderShell ? window.renderShell('home') : '';
-  }
-})();
-</script>
+    <script>
+      document.write(renderShell("home"));
+    </script>
 
     <main class="main">
-<header class="top"><div><h1>Inicio de documentación de calidad</h1><p>Solo carga, procesa y guarda datos limpios. Los módulos leen el mismo motor central.</p></div><span class="pill">V218 raw block view</span></header><section class="card"><div class="grid"><div><label>Referencia</label><input id="ref" value="CE38126"></div><div><label>Revisión</label><input id="rev" value="C.2"></div><div><label>Cliente</label><input id="client" value="John Deere"></div><div><label>Nombre pieza</label><input id="part" value="HOUSING KNUCKLE HOUSING RH"></div><div><label>Fecha</label><input id="date" type="date"></div><div><label>Nº Plan Control</label><input id="planNo" value="TMPTP00001"></div></div></section><section class="uploadGrid"><div class="card"><h2>1 · Excel Inspection</h2><input id="inspectionFile" type="file" accept=".xlsx,.xls,.csv"><div id="inspectionList" class="fileList" style="display:none"></div></div><div class="card"><h2>2 · PC-DMIS múltiples</h2><input id="pcdmisFiles" type="file" multiple accept=".xlsx,.xls,.csv,.txt"><div id="pcdmisList" class="fileList" style="display:none"></div></div></section><section class="card"><h2>Resumen</h2><div class="stats"><div class="stat"><b id="cCount">0</b><span>Cotas Inspection</span></div><div class="stat"><b id="pcCount">0</b><span>Informes PC-DMIS</span></div><div class="stat"><b id="rCount">0</b><span>Bloques asociados</span></div><div class="stat"><b id="uCount">0</b><span>Sin bloque</span></div><div class="stat"><b id="statusBox">Pend.</b><span>Estado</span></div></div><div class="actions"><button class="btn green" onclick="processFiles()">Procesar documentación</button><a id="diagLink" class="btn light disabled" href="diagnostico.html">Diagnóstico</a><a id="isirLink" class="btn disabled" href="isir.html">Ver ISIR</a><a id="kcsLink" class="btn light disabled" href="kcs.html">Ver KCS</a><a id="dimLink" class="btn light disabled" href="dimensional.html">Ver dimensional</a><button class="btn red" onclick="clearProject();location.reload()">Borrar datos</button></div><div id="msg" class="notice">Carga los archivos y pulsa <b>Procesar documentación</b>.</div></section>
+      <header class="top">
+        <div>
+          <h1>Inicio de documentación de calidad</h1>
+          <p>Solo carga, procesa y guarda datos limpios. Los módulos leen el mismo motor central.</p>
+        </div>
+        <span class="pill">V218 raw block view</span>
+      </header>
 
-<div id="paramioCadDocV241" class="paramio-cad-doc">
-  <section class="cad-preview">
-    <div class="cad-title">VISTA PIEZA / CAD</div>
-    <div id="cadImageBoxV241" class="cad-image-box">
-      <div>
-        <strong>IMAGEN DE PIEZA NO CARGADA</strong><br>
-        <small>Para presentación cliente, cargar captura PNG/JPG del sólido.</small>
+      <section class="card">
+        <div class="grid">
+          <div><label>Referencia</label><input id="ref" value="CE38126"></div>
+          <div><label>Revisión</label><input id="rev" value="C.2"></div>
+          <div><label>Cliente</label><input id="client" value="John Deere"></div>
+          <div><label>Nombre pieza</label><input id="part" value="HOUSING KNUCKLE HOUSING RH"></div>
+          <div><label>Fecha</label><input id="date" type="date"></div>
+          <div><label>Nº Plan Control</label><input id="planNo" value="TMPTP00001"></div>
+        </div>
+      </section>
+
+      <section class="uploadGrid">
+        <div class="card">
+          <h2>1 · Excel Inspection</h2>
+          <input id="inspectionFile" type="file" accept=".xlsx,.xls,.csv">
+          <div id="inspectionList" class="fileList" style="display:none"></div>
+        </div>
+        <div class="card">
+          <h2>2 · PC-DMIS múltiples</h2>
+          <input id="pcdmisFiles" type="file" multiple accept=".xlsx,.xls,.csv,.txt">
+          <div id="pcdmisList" class="fileList" style="display:none"></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Resumen</h2>
+        <div class="stats">
+          <div class="stat"><b id="cCount">0</b><span>Cotas Inspection</span></div>
+          <div class="stat"><b id="pcCount">0</b><span>Informes PC-DMIS</span></div>
+          <div class="stat"><b id="rCount">0</b><span>Bloques asociados</span></div>
+          <div class="stat"><b id="uCount">0</b><span>Sin bloque</span></div>
+          <div class="stat"><b id="statusBox">Pend.</b><span>Estado</span></div>
+        </div>
+
+        <div class="actions">
+          <button class="btn green" onclick="processFiles()">Procesar documentación</button>
+          <a id="diagLink" class="btn light disabled" href="diagnostico.html">Diagnóstico</a>
+          <a id="isirLink" class="btn disabled" href="isir.html">Ver ISIR</a>
+          <a id="kcsLink" class="btn light disabled" href="kcs.html">Ver KCS</a>
+          <a id="dimLink" class="btn light disabled" href="dimensional.html">Ver dimensional</a>
+          <button class="btn red" onclick="clearProject();location.reload()">Borrar datos</button>
+        </div>
+
+        <div id="msg" class="notice">Carga los archivos y pulsa <b>Procesar documentación</b>.</div>
+      </section>
+
+      <!-- Bloque CAD V241 conservado, ahora dentro del main -->
+      <style>
+        .paramio-cad-doc{
+          margin-top:16px;
+          border:1px solid #b9c7d9;
+          background:#ffffff;
+          display:grid;
+          grid-template-columns:1.25fr .9fr;
+          min-height:360px;
+          border-radius:16px;
+          overflow:hidden;
+          box-shadow:0 10px 30px rgba(7,26,58,.06);
+        }
+        .paramio-cad-doc .cad-preview{
+          background:linear-gradient(135deg,#0f2649,#183b68);
+          color:#fff;
+          padding:22px;
+          display:flex;
+          flex-direction:column;
+          gap:14px;
+        }
+        .paramio-cad-doc .cad-title{
+          font-size:22px;
+          font-weight:900;
+          letter-spacing:.08em;
+          border-bottom:1px solid rgba(255,255,255,.25);
+          padding-bottom:10px;
+        }
+        .paramio-cad-doc .cad-image-box{
+          flex:1;
+          min-height:230px;
+          border:1px dashed rgba(255,255,255,.35);
+          background:rgba(255,255,255,.06);
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          text-align:center;
+          padding:18px;
+          overflow:hidden;
+        }
+        .paramio-cad-doc .cad-image-box img{
+          max-width:100%;
+          max-height:100%;
+          object-fit:contain;
+          background:#fff;
+        }
+        .paramio-cad-doc .cad-side{
+          padding:22px;
+          background:#f7f9fc;
+          border-left:1px solid #c8d4e6;
+        }
+        .paramio-cad-doc .cad-side h3{
+          margin:0 0 12px;
+          color:#061b3d;
+          font-size:16px;
+          letter-spacing:.04em;
+        }
+        .paramio-cad-doc .cad-field{
+          margin-bottom:12px;
+          border-bottom:1px solid #d8e0ec;
+          padding-bottom:8px;
+        }
+        .paramio-cad-doc .cad-field label{
+          display:block;
+          font-size:10px;
+          color:#52647d;
+          font-weight:900;
+          text-transform:uppercase;
+          letter-spacing:.06em;
+          margin-bottom:4px;
+        }
+        .paramio-cad-doc .cad-field div{
+          font-weight:800;
+          color:#0a2348;
+        }
+        .paramio-cad-doc .cad-actions{
+          display:grid;
+          grid-template-columns:1fr;
+          gap:10px;
+          margin-top:16px;
+        }
+        .paramio-cad-doc input[type=file]{
+          width:100%;
+          border:1px solid #bac8da;
+          padding:8px;
+          background:#fff;
+        }
+        .paramio-cad-doc .cad-note{
+          font-size:12px;
+          line-height:1.45;
+          color:#42566f;
+          background:#fff;
+          border-left:4px solid #efb27f;
+          padding:10px;
+          margin-top:12px;
+        }
+        @media(max-width:1000px){
+          .paramio-cad-doc{grid-template-columns:1fr}
+          .paramio-cad-doc .cad-side{border-left:0;border-top:1px solid #c8d4e6}
+        }
+        @media print{
+          .paramio-cad-doc input{display:none}
+          .paramio-cad-doc{break-inside:avoid}
+        }
+      </style>
+
+      <div id="paramioCadDocV241" class="paramio-cad-doc">
+        <section class="cad-preview">
+          <div class="cad-title">VISTA PIEZA / CAD</div>
+          <div id="cadImageBoxV241" class="cad-image-box">
+            <div>
+              <strong>IMAGEN DE PIEZA NO CARGADA</strong><br>
+              <small>Para presentación cliente, cargar captura PNG/JPG del sólido.</small>
+            </div>
+          </div>
+        </section>
+        <aside class="cad-side">
+          <h3>Archivo técnico asociado</h3>
+          <div class="cad-field">
+            <label>CAD / sólido</label>
+            <div id="cadNameV241">Sin archivo CAD asociado</div>
+          </div>
+          <div class="cad-field">
+            <label>Formato</label>
+            <div id="cadFormatV241">STEP / STP / STL / OBJ / IGES</div>
+          </div>
+          <div class="cad-field">
+            <label>Uso documental</label>
+            <div>Portada · Flowchart · Plan de Control · ISIR · KCS</div>
+          </div>
+          <div class="cad-actions">
+            <label><strong>Asociar archivo CAD</strong><input id="cadFileV241" type="file" accept=".step,.stp,.stl,.obj,.iges,.igs"></label>
+            <label><strong>Cargar imagen/captura pieza</strong><input id="cadImageV241" type="file" accept="image/png,image/jpeg,image/webp"></label>
+          </div>
+          <div class="cad-note">
+            El STEP queda vinculado a la documentación. Para presencia visual fiable en cliente, usar imagen renderizada/captura del CAD. No se muestra geometría falsa.
+          </div>
+        </aside>
       </div>
-    </div>
-  </section>
-  <aside class="cad-side">
-    <h3>Archivo técnico asociado</h3>
-    <div class="cad-field">
-      <label>CAD / sólido</label>
-      <div id="cadNameV241">Sin archivo CAD asociado</div>
-    </div>
-    <div class="cad-field">
-      <label>Formato</label>
-      <div id="cadFormatV241">STEP / STP / STL / OBJ / IGES</div>
-    </div>
-    <div class="cad-field">
-      <label>Uso documental</label>
-      <div>Portada · Flowchart · Plan de Control · ISIR · KCS</div>
-    </div>
-    <div class="cad-actions">
-      <label><strong>Asociar archivo CAD</strong><input id="cadFileV241" type="file" accept=".step,.stp,.stl,.obj,.iges,.igs"></label>
-      <label><strong>Cargar imagen/captura pieza</strong><input id="cadImageV241" type="file" accept="image/png,image/jpeg,image/webp"></label>
-    </div>
-    <div class="cad-note">
-      El STEP queda vinculado a la documentación. Para presencia visual fiable en cliente, usar imagen renderizada/captura del CAD. No se muestra geometría falsa.
-    </div>
-  </aside>
-</div>
     </main>
   </div>
 
+  <!-- Lógica INDEX V218 conservada -->
   <script>
+    document.getElementById('date').valueAsDate=new Date();
 
-document.getElementById('date').valueAsDate=new Date();function filesHtml(files){return[...files].map((f,i)=>`<div class="fileRow"><b>${i+1}. ${esc(f.name)}</b><span>${Math.round(f.size/1024)} KB</span></div>`).join('')}inspectionFile.onchange=e=>{inspectionList.style.display=e.target.files.length?'block':'none';inspectionList.innerHTML=filesHtml(e.target.files)};pcdmisFiles.onchange=e=>{pcdmisList.style.display=e.target.files.length?'block':'none';pcdmisList.innerHTML=filesHtml(e.target.files);pcCount.textContent=e.target.files.length};function enableLinks(){diagLink.classList.remove('disabled');isirLink.classList.remove('disabled');kcsLink.classList.remove('disabled');dimLink.classList.remove('disabled')}function readWorkbook(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>{try{res(XLSX.read(new Uint8Array(e.target.result),{type:'array'}));}catch(err){rej(err)}};r.onerror=rej;r.readAsArrayBuffer(file);});}function readRows(file){return new Promise((res,rej)=>{if(/\.csv$|\.txt$/i.test(file.name)){const r=new FileReader();r.onload=e=>res(parseCsvText(e.target.result));r.onerror=rej;r.readAsText(file,'windows-1252');}else{readWorkbook(file).then(wb=>res(workbookAllRows(wb))).catch(rej);}})}(function restore(){const p=loadProject();if(p){cCount.textContent=p.characteristics.length;pcCount.textContent=(p.pcdmisFiles||[]).length;rCount.textContent=p.linkedResults||0;uCount.textContent=(p.unlinked||[]).length;statusBox.textContent='OK';enableLinks();msg.className='notice okNotice';msg.innerHTML='Datos guardados para <b>'+esc(p.meta.reference)+'</b>. Motor CORE V218 activo.'}})();async function processFiles(){if(typeof XLSX==='undefined'){msg.className='notice badNotice';msg.innerHTML='No se ha cargado XLSX.';return;}const insp=inspectionFile.files[0];if(!insp){alert('Carga primero el Excel Inspection');return;}msg.className='notice';msg.textContent='Procesando archivos...';try{const wb=await readWorkbook(insp);const chars=parseInspectionWorkbook(wb);let linked=0,unlinked=[],piece=1,pcFiles=[...pcdmisFiles.files],pcdmisBlocks={},pcdmisRawBlocks={},pcdmisGlobalItems={};for(const file of pcFiles){const rows=await readRows(file);const parsed=parsePcDmisRows(rows);pcdmisBlocks[String(piece)]=parsed.measures;pcdmisRawBlocks[String(piece)]=parsed.rawBlocks||{};pcdmisGlobalItems[String(piece)]=parsed.globalItems||[];Object.entries(parsed.measures).forEach(([n,res])=>{const c=chars.find(x=>Number(x.number)===Number(n));if(c){c.results[String(piece)]=res;linked++;}else unlinked.push(n);});piece++;}const project={meta:{reference:ref.value,revision:rev.value,client:client.value,partName:part.value,date:date.value,planNo:planNo.value},characteristics:chars,pcdmisFiles:pcFiles.map(f=>f.name),pcdmisBlocks,pcdmisRawBlocks,pcdmisGlobalItems,linkedResults:linked,unlinked,createdAt:new Date().toISOString()};saveProject(project);enableLinks();cCount.textContent=chars.length;pcCount.textContent=pcFiles.length;rCount.textContent=linked;uCount.textContent=unlinked.length;statusBox.textContent='OK';msg.className='notice okNotice';msg.innerHTML=`Guardado CORE V218: <b>${chars.length}</b> cotas, <b>${pcFiles.length}</b> PC-DMIS, <b>${linked}</b> bloques asociados.`;}catch(err){console.error(err);msg.className='notice badNotice';msg.textContent='Error procesando: '+err.message;}}
+    function filesHtml(files){
+      return [...files].map((f,i)=>`<div class="fileRow"><b>${i+1}. ${esc(f.name)}</b><span>${Math.round(f.size/1024)} KB</span></div>`).join('')
+    }
 
+    inspectionFile.onchange=e=>{
+      inspectionList.style.display=e.target.files.length?'block':'none';
+      inspectionList.innerHTML=filesHtml(e.target.files)
+    };
+
+    pcdmisFiles.onchange=e=>{
+      pcdmisList.style.display=e.target.files.length?'block':'none';
+      pcdmisList.innerHTML=filesHtml(e.target.files);
+      pcCount.textContent=e.target.files.length
+    };
+
+    function enableLinks(){
+      diagLink.classList.remove('disabled');
+      isirLink.classList.remove('disabled');
+      kcsLink.classList.remove('disabled');
+      dimLink.classList.remove('disabled')
+    }
+
+    function readWorkbook(file){
+      return new Promise((res,rej)=>{
+        const r=new FileReader();
+        r.onload=e=>{
+          try{res(XLSX.read(new Uint8Array(e.target.result),{type:'array'}));}
+          catch(err){rej(err)}
+        };
+        r.onerror=rej;
+        r.readAsArrayBuffer(file);
+      });
+    }
+
+    function readRows(file){
+      return new Promise((res,rej)=>{
+        if(/\.csv$|\.txt$/i.test(file.name)){
+          const r=new FileReader();
+          r.onload=e=>res(parseCsvText(e.target.result));
+          r.onerror=rej;
+          r.readAsText(file,'windows-1252');
+        }else{
+          readWorkbook(file).then(wb=>res(workbookAllRows(wb))).catch(rej);
+        }
+      })
+    }
+
+    (function restore(){
+      const p=loadProject();
+      if(p){
+        cCount.textContent=p.characteristics.length;
+        pcCount.textContent=(p.pcdmisFiles||[]).length;
+        rCount.textContent=p.linkedResults||0;
+        uCount.textContent=(p.unlinked||[]).length;
+        statusBox.textContent='OK';
+        enableLinks();
+        msg.className='notice okNotice';
+        msg.innerHTML='Datos guardados para <b>'+esc(p.meta.reference)+'</b>. Motor CORE V218 activo.'
+      }
+    })();
+
+    async function processFiles(){
+      if(typeof XLSX==='undefined'){
+        msg.className='notice badNotice';
+        msg.innerHTML='No se ha cargado XLSX.';
+        return;
+      }
+      const insp=inspectionFile.files[0];
+      if(!insp){
+        alert('Carga primero el Excel Inspection');
+        return;
+      }
+      msg.className='notice';
+      msg.textContent='Procesando archivos...';
+      try{
+        const wb=await readWorkbook(insp);
+        const chars=parseInspectionWorkbook(wb);
+        let linked=0,unlinked=[],piece=1,pcFiles=[...pcdmisFiles.files],pcdmisBlocks={},pcdmisRawBlocks={},pcdmisGlobalItems={};
+
+        for(const file of pcFiles){
+          const rows=await readRows(file);
+          const parsed=parsePcDmisRows(rows);
+          pcdmisBlocks[String(piece)]=parsed.measures;
+          pcdmisRawBlocks[String(piece)]=parsed.rawBlocks||{};
+          pcdmisGlobalItems[String(piece)]=parsed.globalItems||[];
+          Object.entries(parsed.measures).forEach(([n,res])=>{
+            const c=chars.find(x=>Number(x.number)===Number(n));
+            if(c){
+              c.results[String(piece)]=res;
+              linked++;
+            }else{
+              unlinked.push(n);
+            }
+          });
+          piece++;
+        }
+
+        const project={
+          meta:{
+            reference:ref.value,
+            revision:rev.value,
+            client:client.value,
+            partName:part.value,
+            date:date.value,
+            planNo:planNo.value
+          },
+          characteristics:chars,
+          pcdmisFiles:pcFiles.map(f=>f.name),
+          pcdmisBlocks,
+          pcdmisRawBlocks,
+          pcdmisGlobalItems,
+          linkedResults:linked,
+          unlinked,
+          createdAt:new Date().toISOString()
+        };
+
+        saveProject(project);
+        enableLinks();
+        cCount.textContent=chars.length;
+        pcCount.textContent=pcFiles.length;
+        rCount.textContent=linked;
+        uCount.textContent=unlinked.length;
+        statusBox.textContent='OK';
+        msg.className='notice okNotice';
+        msg.innerHTML=`Guardado CORE V218: <b>${chars.length}</b> cotas, <b>${pcFiles.length}</b> PC-DMIS, <b>${linked}</b> bloques asociados.`;
+      }catch(err){
+        console.error(err);
+        msg.className='notice badNotice';
+        msg.textContent='Error procesando: '+err.message;
+      }
+    }
   </script>
 
-<script>
-(function(){
-  function ext(name){ return String(name||"").split(".").pop().toUpperCase(); }
-  function save(key, value){ try{ localStorage.setItem(key, value); }catch(e){} }
-  function load(key){ try{ return localStorage.getItem(key); }catch(e){ return null; } }
+  <!-- CAD V241 conservado -->
+  <script>
+    (function(){
+      function ext(name){ return String(name||"").split(".").pop().toUpperCase(); }
+      function save(key, value){ try{ localStorage.setItem(key, value); }catch(e){} }
+      function load(key){ try{ return localStorage.getItem(key); }catch(e){ return null; } }
 
-  const cadInput = document.getElementById("cadFileV241");
-  const imageInput = document.getElementById("cadImageV241");
-  const nameBox = document.getElementById("cadNameV241");
-  const fmtBox = document.getElementById("cadFormatV241");
-  const imgBox = document.getElementById("cadImageBoxV241");
+      const cadInput = document.getElementById("cadFileV241");
+      const imageInput = document.getElementById("cadImageV241");
+      const nameBox = document.getElementById("cadNameV241");
+      const fmtBox = document.getElementById("cadFormatV241");
+      const imgBox = document.getElementById("cadImageBoxV241");
 
-  const oldName = load("paramio_cad_name_v241");
-  const oldFmt = load("paramio_cad_format_v241");
-  const oldImg = load("paramio_cad_image_v241");
-  if(oldName) nameBox.textContent = oldName;
-  if(oldFmt) fmtBox.textContent = oldFmt;
-  if(oldImg) imgBox.innerHTML = '<img src="'+oldImg+'" alt="Vista pieza CAD">';
+      const oldName = load("paramio_cad_name_v241");
+      const oldFmt = load("paramio_cad_format_v241");
+      const oldImg = load("paramio_cad_image_v241");
+      if(oldName) nameBox.textContent = oldName;
+      if(oldFmt) fmtBox.textContent = oldFmt;
+      if(oldImg) imgBox.innerHTML = '<img src="'+oldImg+'" alt="Vista pieza CAD">';
 
-  if(cadInput){
-    cadInput.addEventListener("change", function(){
-      const f = this.files && this.files[0];
-      if(!f) return;
-      nameBox.textContent = f.name;
-      fmtBox.textContent = ext(f.name);
-      save("paramio_cad_name_v241", f.name);
-      save("paramio_cad_format_v241", ext(f.name));
-    });
-  }
-
-  if(imageInput){
-    imageInput.addEventListener("change", function(){
-      const f = this.files && this.files[0];
-      if(!f) return;
-      const reader = new FileReader();
-      reader.onload = function(e){
-        imgBox.innerHTML = '<img src="'+e.target.result+'" alt="Vista pieza CAD">';
-        save("paramio_cad_image_v241", e.target.result);
-      };
-      reader.readAsDataURL(f);
-    });
-  }
-})();
-</script>
-
-<script>
-/* PARAMIO_V250_FULL_TRANSLATION_CORE
-   Traducción global ES/EN mejorada.
-   Traduce texto visible, placeholders, botones, labels, opciones y contenido dinámico.
-   Conserva números, referencias, cotas técnicas y valores de medición.
-*/
-(function(){
-  const DICT = {
-  "Inicio / Cargar": "Home / Load",
-  "Inicio": "Home",
-  "Diagnóstico": "Diagnosis",
-  "ISIR": "ISIR",
-  "Dimensional": "Dimensional",
-  "KCS": "KCS",
-  "Plan de control": "Control Plan",
-  "Plan de Control": "Control Plan",
-  "Flowchart": "Flowchart",
-  "Seleccionar KCS": "Select KCS",
-  "Informe KCS": "KCS Report",
-  "Informe dimensional": "Dimensional report",
-  "Listado KCS": "KCS List",
-  "Listado de Registros": "Record List",
-  "Cargar Excel": "Load Excel",
-  "Guardar PDF": "Save PDF",
-  "Imprimir": "Print",
-  "Exportar CSV trazable": "Export traceable CSV",
-  "Ver trazabilidad": "View traceability",
-  "Ver informe KCS": "View KCS Report",
-  "Volver a Dimensional": "Back to Dimensional",
-  "Marcar desde Dimensional": "Select from Dimensional",
-  "Borrar datos": "Clear data",
-  "Procesar documentación": "Process documentation",
-  "Añadir operación": "Add operation",
-  "Restaurar estándar": "Restore standard",
-  "Guardar configuración": "Save configuration",
-  "Cargar configuración": "Load configuration",
-  "Coger operaciones del Plan de Control": "Get operations from Control Plan",
-  "Imprimir / PDF": "Print / PDF",
-  "Cargar CAD": "Load CAD",
-  "Asociar archivo CAD": "Associate CAD file",
-  "Cargar imagen/captura pieza": "Load part image/screenshot",
-  "Marcar KCS": "Mark KCS",
-  "KCS ACTIVA": "KCS ACTIVE",
-  "MARCAR KCS": "MARK KCS",
-  "Marcar": "Mark",
-  "Manual": "Manual",
-  "Cliente": "Customer",
-  "Referencia": "Reference",
-  "Pieza": "Part",
-  "Nombre Pieza": "Part Name",
-  "Nombre pieza": "Part name",
-  "Rev.": "Rev.",
-  "Revisión": "Revision",
-  "Fecha": "Date",
-  "Fecha documentación": "Documentation date",
-  "Nº Plan Control": "Control Plan No.",
-  "Nº plan de Control": "Control Plan No.",
-  "Nº piezas documento": "Number of document parts",
-  "Detectadas": "Detected",
-  "Datos guardados para": "Data saved for",
-  "Plataforma OEM": "OEM Platform",
-  "Cotas": "Characteristics",
-  "COTA": "CHARACTERISTIC",
-  "Cotas totales": "Total characteristics",
-  "KCS seleccionadas": "Selected KCS",
-  "KCS OK": "KCS OK",
-  "KCS NOK": "KCS NOK",
-  "Piezas detectadas": "Detected parts",
-  "Pendientes clasificados": "Classified pending",
-  "SIN_BLOQUE": "NO_BLOCK",
-  "SIN_REGLA": "NO_RULE",
-  "SIN MEDICIÓN": "NO MEASUREMENT",
-  "Sin medición": "No measurement",
-  "Asociadas": "Associated",
-  "Controles": "Controls",
-  "Operaciones": "Operations",
-  "Reproceso": "Rework",
-  "Globo": "Balloon",
-  "Tipo": "Type",
-  "Característica Inspection": "Inspection Characteristic",
-  "Caracteristica Inspection": "Inspection Characteristic",
-  "Característica": "Characteristic",
-  "Caracteristicas": "Characteristics",
-  "Características": "Characteristics",
-  "Especificación": "Specification",
-  "Registro pieza": "Part record",
-  "Estado pieza": "Part status",
-  "Registro pieza 1": "Part record 1",
-  "Estado pieza 1": "Part status 1",
-  "Registro pieza 2": "Part record 2",
-  "Estado pieza 2": "Part status 2",
-  "Registro pieza 3": "Part record 3",
-  "Estado pieza 3": "Part status 3",
-  "Registro pieza 4": "Part record 4",
-  "Estado pieza 4": "Part status 4",
-  "Registro pieza 5": "Part record 5",
-  "Estado pieza 5": "Part status 5",
-  "Nº piezas medición": "Number of measured parts",
-  "Nº piezas medición / lote:": "Number of measured parts / batch:",
-  "Introduce cualquier cantidad. Ej.: 10, 50, 200.": "Enter any quantity. Example: 10, 50, 200.",
-  "Filtrar globo / característica / estado": "Filter balloon / characteristic / status",
-  "Filtrar KCS seleccionadas": "Filter selected KCS",
-  "PLAN DE CONTROL": "CONTROL PLAN",
-  "Nº Operación": "Operation No.",
-  "Nº operación": "Operation No.",
-  "Descripción de la operación": "Operation description",
-  "Máquina, útiles, htas. de fabricación": "Machine, fixtures, manufacturing tools",
-  "Máquina / medio": "Machine / equipment",
-  "Producto": "Product",
-  "Proceso": "Process",
-  "KC": "KC",
-  "Especificación de Producto/Proceso/Tolerancia": "Product/Process/Tolerance Specification",
-  "Especificación de producto/proceso/tolerancia": "Product/process/tolerance specification",
-  "Límites de control": "Control limits",
-  "Instrumento de Evaluación/Medida": "Evaluation/Measurement instrument",
-  "Instrumento de evaluación/medida": "Evaluation/measurement instrument",
-  "Tamaño muestra": "Sample size",
-  "Frecuencia de muestreo": "Sampling frequency",
-  "Realizado por": "Performed by",
-  "Método de control": "Control method",
-  "Plan de Reacción": "Reaction plan",
-  "Plan de reacción": "Reaction plan",
-  "No se indica la Ref. de los Calibres por ser susceptibles de cambio por su situación metrológica o lugar de Inspección.": "Gauge references are not indicated because they may change due to metrological status or inspection location.",
-  "Preparación de máquinas, herramientas y utillajes": "Machine, tool and fixture preparation",
-  "Preparación máquinas": "Machine preparation",
-  "Puesta a punto": "Setup",
-  "Puesta a cero equipos": "Zero setting of equipment",
-  "Control volante": "In-process patrol control",
-  "Recepción MP": "Raw material receipt",
-  "Mecanizado": "Machining",
-  "Rebarbado": "Deburring",
-  "Limpieza": "Cleaning",
-  "Soplado": "Blowing",
-  "Embalaje": "Packaging",
-  "Expedición": "Shipping",
-  "Almacén": "Warehouse",
-  "Calidad": "Quality",
-  "Operario": "Operator",
-  "Responsable de línea": "Line responsible",
-  "Logística": "Logistics",
-  "Metrología": "Metrology",
-  "Inicio y final del lote": "Start and end of batch",
-  "Inicio de cada lote de producción": "Start of each production batch",
-  "Inicio cada turno": "Start of each shift",
-  "1 pieza al turno": "1 part per shift",
-  "1/Turno": "1/Shift",
-  "Cada recepción": "Each receipt",
-  "Cada lote": "Each batch",
-  "Cada orden de compra": "Each purchase order",
-  "Mensual": "Monthly",
-  "100%": "100%",
-  "Informe tridimensional / Dimensional": "3D inspection / Dimensional report",
-  "Informe tridimensional": "3D inspection report",
-  "Informe 3D": "3D report",
-  "Pauta de control": "Control sheet",
-  "Revisión documental": "Document review",
-  "Inspección visual": "Visual inspection",
-  "Visual": "Visual",
-  "Pie de rey": "Caliper",
-  "Rugosímetro": "Roughness tester",
-  "Tridimensional CMM / PC-DMIS": "CMM / PC-DMIS",
-  "Plantilla de radio": "Radius gauge",
-  "Plantilla de radios": "Radius gauges",
-  "Presetting": "Presetting",
-  "Gramil de alturas": "Height gauge",
-  "Tampón P/NP": "Go/No-Go plug gauge",
-  "Alexómetro": "Bore gauge",
-  "Micrómetro": "Micrometer",
-  "PROCESS FLOW DIAGRAM": "PROCESS FLOW DIAGRAM",
-  "Diagrama de Flujo de Proceso": "Process Flow Diagram",
-  "DIAGRAMA DE FLUJO": "FLOWCHART",
-  "DIAGRAMA DE FLUJO · FABRICACIÓN Y CONTROL": "FLOWCHART · MANUFACTURING AND CONTROL",
-  "Fabricación y control": "Manufacturing and control",
-  "Estado documentación": "Documentation status",
-  "Plantilla por defecto": "Default template",
-  "Plan Control link": "Control Plan link",
-  "Rutas NOK": "NOK routes",
-  "Configurables": "Configurable",
-  "Control dimensional": "Dimensional control",
-  "Control dimensional + visual": "Dimensional + visual control",
-  "Control proceso": "Process control",
-  "Control": "Control",
-  "Preparación operación": "Operation preparation",
-  "Herramientas / utillaje correcto": "Correct tools / fixtures",
-  "Programa CNC y parámetros": "CNC program and parameters",
-  "Puesta a punto primera pieza": "First-part setup",
-  "Puesta a cero equipos control": "Zero setting of control equipment",
-  "Control volante si aplica": "Patrol control if applicable",
-  "DECISIÓN Q": "Q DECISION",
-  "DECISIÓN Q REPROCESO": "Q REWORK DECISION",
-  "Decisión Q de reproceso": "Quality rework decision",
-  "OK REPROCESO → RETORNO": "OK REWORK → RETURN",
-  "OK REPROCESO → RETORNO A ORIGEN": "OK REWORK → RETURN TO ORIGIN",
-  "NOK → CHATARRA": "NOK → SCRAP",
-  "NOK → PC5 Gestión rechazos": "NOK → PC5 Rejection management",
-  "Segregación / decisión calidad": "Segregation / quality decision",
-  "Reproceso / chatarra / decisión Q": "Rework / scrap / Q decision",
-  "Operaciones configurables": "Configurable operations",
-  "nunca arranca vacío": "never starts empty",
-  "rutas OK/NOK por fase": "OK/NOK routes by phase",
-  "Diagnóstico trazable": "Traceable diagnosis",
-  "Diagnóstico por cota": "Diagnosis by characteristic",
-  "Inspección": "Inspection",
-  "Confianza": "Confidence",
-  "PC-DMIS usado": "PC-DMIS used",
-  "Estado": "Status",
-  "Sin selección": "No selection",
-  "No existe bloque PC-DMIS": "No PC-DMIS block exists",
-  "Match validado correctamente": "Match successfully validated",
-  "Fuera de nominal +/- tolerancia": "Outside nominal +/- tolerance",
-  "Geometría fuera de tolerancia": "Geometry out of tolerance",
-  "VISTA PIEZA / CAD": "PART / CAD VIEW",
-  "Archivo técnico asociado": "Associated technical file",
-  "CAD / sólido": "CAD / solid",
-  "Formato": "Format",
-  "Uso documental": "Documentary use",
-  "Portada · Flowchart · Plan de Control · ISIR · KCS": "Cover · Flowchart · Control Plan · ISIR · KCS",
-  "IMAGEN DE PIEZA NO CARGADA": "PART IMAGE NOT LOADED",
-  "Para presentación cliente, cargar captura PNG/JPG del sólido.": "For customer presentation, load a PNG/JPG screenshot of the solid.",
-  "El STEP queda vinculado a la documentación. Para presencia visual fiable en cliente, usar imagen renderizada/captura del CAD. No se muestra geometría falsa.": "The STEP file remains linked to the documentation. For a reliable customer visual, use a rendered CAD image/screenshot. No fake geometry is displayed.",
-  "Documento de control dimensional. Selección oficial de características KCS.": "Dimensional control document. Official selection of KCS characteristics.",
-  "Resultados dimensionales por pieza. La columna KCS controla el informe KCS del cliente.": "Dimensional results by part. The KCS column controls the customer KCS report.",
-  "Características críticas seleccionadas previamente en el informe dimensional.": "Critical characteristics previously selected in the dimensional report.",
-  "Listado exclusivo de cotas marcadas como KCS desde Dimensional.": "Exclusive list of characteristics marked as KCS from Dimensional.",
-  "Cada cota queda clasificada": "Each characteristic is classified",
-  "Documentación técnica conectada": "Connected technical documentation",
-  "Base dimensional, características, KCS y especificaciones.": "Dimensional base, characteristics, KCS and specifications.",
-  "Resultados de máquina, bloques PC-DMIS y trazabilidad de medición.": "Machine results, PC-DMIS blocks and measurement traceability."
-};
-
-  const SKIP_TAGS = new Set(["SCRIPT","STYLE","NOSCRIPT","TEXTAREA"]);
-  const INPUT_TYPES_TO_TRANSLATE = new Set(["button","submit","reset"]);
-
-  function sortedKeys(){
-    return Object.keys(DICT).sort((a,b)=>b.length-a.length);
-  }
-
-  function looksTechnicalOnly(txt){
-    const t = String(txt || "").trim();
-    if(!t) return true;
-    if(/^[-+0-9.,/ %:;()ØA-Z_]+$/.test(t) && !/[a-záéíóúñü]/i.test(t.replace(/[A-Z]/g,''))) return true;
-    if(/^CE\d+|^[A-Z]{1,4}\d{2,}/.test(t)) return true;
-    return false;
-  }
-
-  function translateString(original, lang){
-    if(lang === "es") return original;
-    let txt = String(original);
-    for(const es of sortedKeys()){
-      const en = DICT[es];
-      txt = txt.split(es).join(en);
-      txt = txt.split(es.toUpperCase()).join(String(en).toUpperCase());
-    }
-    return txt;
-  }
-
-  function translateTextNode(node, lang){
-    const parent = node.parentElement;
-    if(!parent || SKIP_TAGS.has(parent.tagName)) return;
-    const val = node.nodeValue;
-    if(!val || !val.trim()) return;
-    if(looksTechnicalOnly(val)) return;
-    if(!node.__paramioOriginalText) node.__paramioOriginalText = val;
-    node.nodeValue = translateString(node.__paramioOriginalText, lang);
-  }
-
-  function translateAttributes(el, lang){
-    ["placeholder","title","aria-label","alt"].forEach(attr=>{
-      if(!el.hasAttribute || !el.hasAttribute(attr)) return;
-      const key = "__paramioOriginal_" + attr;
-      if(!el[key]) el[key] = el.getAttribute(attr);
-      el.setAttribute(attr, translateString(el[key], lang));
-    });
-
-    if(el.tagName === "INPUT" && INPUT_TYPES_TO_TRANSLATE.has((el.type||"").toLowerCase())){
-      if(!el.__paramioOriginalValue) el.__paramioOriginalValue = el.value;
-      el.value = translateString(el.__paramioOriginalValue, lang);
-    }
-  }
-
-  function walk(lang){
-    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
-      acceptNode(node){
-        const p = node.parentElement;
-        if(!p || SKIP_TAGS.has(p.tagName)) return NodeFilter.FILTER_REJECT;
-        if(!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_SKIP;
-        if(looksTechnicalOnly(node.nodeValue)) return NodeFilter.FILTER_SKIP;
-        return NodeFilter.FILTER_ACCEPT;
+      if(cadInput){
+        cadInput.addEventListener("change", function(){
+          const f = this.files && this.files[0];
+          if(!f) return;
+          nameBox.textContent = f.name;
+          fmtBox.textContent = ext(f.name);
+          save("paramio_cad_name_v241", f.name);
+          save("paramio_cad_format_v241", ext(f.name));
+        });
       }
-    });
-    const nodes=[];
-    while(walker.nextNode()) nodes.push(walker.currentNode);
-    nodes.forEach(n=>translateTextNode(n, lang));
 
-    document.querySelectorAll("*").forEach(el=>translateAttributes(el, lang));
-    document.querySelectorAll("option").forEach(op=>{
-      if(!op.__paramioOriginalText) op.__paramioOriginalText = op.textContent;
-      op.textContent = translateString(op.__paramioOriginalText, lang);
-    });
+      if(imageInput){
+        imageInput.addEventListener("change", function(){
+          const f = this.files && this.files[0];
+          if(!f) return;
+          const reader = new FileReader();
+          reader.onload = function(e){
+            imgBox.innerHTML = '<img src="'+e.target.result+'" alt="Vista pieza CAD">';
+            save("paramio_cad_image_v241", e.target.result);
+          };
+          reader.readAsDataURL(f);
+        });
+      }
+    })();
+  </script>
 
-    document.querySelectorAll(".paramio-lang-switch button").forEach(b=>b.classList.toggle("active", b.dataset.lang===lang));
-  }
+  <!-- Traducción V250 conservada, reducida a núcleo operativo sobre el diccionario original del proyecto -->
+  <style id="paramio-v250-lang-style">
+    .paramio-lang-switch{
+      position:fixed;right:18px;bottom:18px;z-index:99999;
+      display:flex;gap:6px;align-items:center;background:#071a3a;color:#fff;
+      border:1px solid #314d78;border-radius:999px;padding:7px 9px;
+      box-shadow:0 8px 24px rgba(7,26,58,.25);font-family:Arial,sans-serif;
+    }
+    .paramio-lang-switch button{
+      border:0;border-radius:999px;padding:6px 10px;font-weight:900;cursor:pointer;
+      background:#fff;color:#071a3a;font-size:12px;
+    }
+    .paramio-lang-switch button.active{background:#efb27f;color:#071a3a}
+    @media print{.paramio-lang-switch{display:none!important}}
+  </style>
 
-  function observe(){
-    if(window.__paramioV250Observer) return;
-    window.__paramioV250Observer = new MutationObserver(function(){
-      clearTimeout(window.__paramioV250Timer);
-      window.__paramioV250Timer = setTimeout(()=>walk(localStorage.getItem("paramio_doc_lang") || "es"), 120);
-    });
-    window.__paramioV250Observer.observe(document.body, {childList:true, subtree:true, characterData:true});
-  }
+  <script>
+    (function(){
+      const DICT = {
+        "Inicio / Cargar": "Home / Load",
+        "Inicio": "Home",
+        "Diagnóstico": "Diagnosis",
+        "ISIR": "ISIR",
+        "Dimensional": "Dimensional",
+        "KCS": "KCS",
+        "Plan de Control": "Control Plan",
+        "Flowchart": "Flowchart",
+        "Procesar documentación": "Process documentation",
+        "Borrar datos": "Clear data",
+        "Cliente": "Customer",
+        "Referencia": "Reference",
+        "Revisión": "Revision",
+        "Nombre pieza": "Part name",
+        "Fecha": "Date",
+        "Nº Plan Control": "Control Plan No.",
+        "Cotas Inspection": "Inspection characteristics",
+        "Informes PC-DMIS": "PC-DMIS reports",
+        "Bloques asociados": "Associated blocks",
+        "Sin bloque": "No block",
+        "Estado": "Status",
+        "Carga los archivos y pulsa": "Load the files and click",
+        "VISTA PIEZA / CAD": "PART / CAD VIEW",
+        "Archivo técnico asociado": "Associated technical file",
+        "CAD / sólido": "CAD / solid",
+        "Formato": "Format",
+        "Uso documental": "Documentary use",
+        "Portada · Flowchart · Plan de Control · ISIR · KCS": "Cover · Flowchart · Control Plan · ISIR · KCS",
+        "IMAGEN DE PIEZA NO CARGADA": "PART IMAGE NOT LOADED",
+        "Para presentación cliente, cargar captura PNG/JPG del sólido.": "For customer presentation, load a PNG/JPG screenshot of the solid.",
+        "Asociar archivo CAD": "Associate CAD file",
+        "Cargar imagen/captura pieza": "Load part image/screenshot",
+        "Sin archivo CAD asociado": "No CAD file associated",
+        "El STEP queda vinculado a la documentación. Para presencia visual fiable en cliente, usar imagen renderizada/captura del CAD. No se muestra geometría falsa.": "The STEP file remains linked to the documentation. For a reliable customer visual, use a rendered CAD image/screenshot. No fake geometry is displayed."
+      };
 
-  function makeSwitch(){
-    if(document.getElementById("paramioLangSwitch")) return;
-    const box = document.createElement("div");
-    box.id="paramioLangSwitch";
-    box.className="paramio-lang-switch";
-    box.innerHTML='<strong style="font-size:12px;margin:0 4px">LANG</strong><button data-lang="es">ES</button><button data-lang="en">EN</button>';
-    document.body.appendChild(box);
-    box.querySelectorAll("button").forEach(btn=>{
-      btn.addEventListener("click",()=>{
-        localStorage.setItem("paramio_doc_lang",btn.dataset.lang);
-        walk(btn.dataset.lang);
+      const SKIP_TAGS = new Set(["SCRIPT","STYLE","NOSCRIPT","TEXTAREA"]);
+      const INPUT_TYPES_TO_TRANSLATE = new Set(["button","submit","reset"]);
+
+      function sortedKeys(){ return Object.keys(DICT).sort((a,b)=>b.length-a.length); }
+
+      function looksTechnicalOnly(txt){
+        const t = String(txt || "").trim();
+        if(!t) return true;
+        if(/^[-+0-9.,/ %:;()ØA-Z_]+$/.test(t) && !/[a-záéíóúñü]/i.test(t.replace(/[A-Z]/g,''))) return true;
+        if(/^CE\d+|^[A-Z]{1,4}\d{2,}/.test(t)) return true;
+        return false;
+      }
+
+      function translateString(original, lang){
+        if(lang === "es") return original;
+        let txt = String(original);
+        for(const es of sortedKeys()){
+          const en = DICT[es];
+          txt = txt.split(es).join(en);
+          txt = txt.split(es.toUpperCase()).join(String(en).toUpperCase());
+        }
+        return txt;
+      }
+
+      function translateTextNode(node, lang){
+        const parent = node.parentElement;
+        if(!parent || SKIP_TAGS.has(parent.tagName)) return;
+        const val = node.nodeValue;
+        if(!val || !val.trim()) return;
+        if(looksTechnicalOnly(val)) return;
+        if(!node.__paramioOriginalText) node.__paramioOriginalText = val;
+        node.nodeValue = translateString(node.__paramioOriginalText, lang);
+      }
+
+      function translateAttributes(el, lang){
+        ["placeholder","title","aria-label","alt"].forEach(attr=>{
+          if(!el.hasAttribute || !el.hasAttribute(attr)) return;
+          const key = "__paramioOriginal_" + attr;
+          if(!el[key]) el[key] = el.getAttribute(attr);
+          el.setAttribute(attr, translateString(el[key], lang));
+        });
+
+        if(el.tagName === "INPUT" && INPUT_TYPES_TO_TRANSLATE.has((el.type||"").toLowerCase())){
+          if(!el.__paramioOriginalValue) el.__paramioOriginalValue = el.value;
+          el.value = translateString(el.__paramioOriginalValue, lang);
+        }
+      }
+
+      function walk(lang){
+        const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+          acceptNode(node){
+            const p = node.parentElement;
+            if(!p || SKIP_TAGS.has(p.tagName)) return NodeFilter.FILTER_REJECT;
+            if(!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_SKIP;
+            if(looksTechnicalOnly(node.nodeValue)) return NodeFilter.FILTER_SKIP;
+            return NodeFilter.FILTER_ACCEPT;
+          }
+        });
+        const nodes=[];
+        while(walker.nextNode()) nodes.push(walker.currentNode);
+        nodes.forEach(n=>translateTextNode(n, lang));
+
+        document.querySelectorAll("*").forEach(el=>translateAttributes(el, lang));
+        document.querySelectorAll("option").forEach(op=>{
+          if(!op.__paramioOriginalText) op.__paramioOriginalText = op.textContent;
+          op.textContent = translateString(op.__paramioOriginalText, lang);
+        });
+
+        document.querySelectorAll(".paramio-lang-switch button").forEach(b=>b.classList.toggle("active", b.dataset.lang===lang));
+      }
+
+      function observe(){
+        if(window.__paramioV250Observer) return;
+        window.__paramioV250Observer = new MutationObserver(function(){
+          clearTimeout(window.__paramioV250Timer);
+          window.__paramioV250Timer = setTimeout(()=>walk(localStorage.getItem("paramio_doc_lang") || "es"), 120);
+        });
+        window.__paramioV250Observer.observe(document.body, {childList:true, subtree:true, characterData:true});
+      }
+
+      function makeSwitch(){
+        if(document.getElementById("paramioLangSwitch")) return;
+        const box = document.createElement("div");
+        box.id="paramioLangSwitch";
+        box.className="paramio-lang-switch";
+        box.innerHTML='<strong style="font-size:12px;margin:0 4px">LANG</strong><button data-lang="es">ES</button><button data-lang="en">EN</button>';
+        document.body.appendChild(box);
+        box.querySelectorAll("button").forEach(btn=>{
+          btn.addEventListener("click",()=>{
+            localStorage.setItem("paramio_doc_lang",btn.dataset.lang);
+            walk(btn.dataset.lang);
+          });
+        });
+      }
+
+      document.addEventListener("DOMContentLoaded", function(){
+        makeSwitch();
+        const lang = localStorage.getItem("paramio_doc_lang") || "es";
+        walk(lang);
+        observe();
+        setTimeout(()=>walk(localStorage.getItem("paramio_doc_lang") || "es"), 500);
+        setTimeout(()=>walk(localStorage.getItem("paramio_doc_lang") || "es"), 1500);
       });
-    });
-  }
 
-  document.addEventListener("DOMContentLoaded", function(){
-    makeSwitch();
-    const lang = localStorage.getItem("paramio_doc_lang") || "es";
-    walk(lang);
-    observe();
-    setTimeout(()=>walk(localStorage.getItem("paramio_doc_lang") || "es"), 500);
-    setTimeout(()=>walk(localStorage.getItem("paramio_doc_lang") || "es"), 1500);
-  });
+      window.paramioSetLanguage = function(lang){
+        localStorage.setItem("paramio_doc_lang",lang);
+        walk(lang);
+      };
+      window.paramioTranslateNow = function(){
+        walk(localStorage.getItem("paramio_doc_lang") || "es");
+      };
+    })();
+  </script>
 
-  window.paramioSetLanguage = function(lang){
-    localStorage.setItem("paramio_doc_lang",lang);
-    walk(lang);
-  };
-  window.paramioTranslateNow = function(){ walk(localStorage.getItem("paramio_doc_lang") || "es"); };
-})();
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-<script src="js/supabase.js"></script>
+  <!-- Supabase conservado al final -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script src="js/supabase.js"></script>
 </body>
 </html>
