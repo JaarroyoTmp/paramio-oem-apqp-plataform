@@ -132,6 +132,193 @@ th{background:#eaf0f8;color:#071a3a;text-transform:uppercase;font-size:11px}
   }
 })();
 </script>
+
+<script id="paramio-isir-missing-oem-helpers">
+(function(){
+  function getResults(c){
+    if(!c) return {};
+    const r = c.results || c.resultados || c.measures || c.medidas || {};
+    if(Array.isArray(r)){
+      const o = {};
+      r.forEach(function(v,i){ o[String(i+1)] = v; });
+      return o;
+    }
+    return r || {};
+  }
+
+  function getResult(c,piece){
+    const r = getResults(c);
+    return r[piece] || r[String(piece)] || r["P"+piece] || r["p"+piece] || null;
+  }
+
+  function valueFromResult(r){
+    if(r === undefined || r === null || r === "") return "-";
+    if(typeof r !== "object") return r;
+    if(Array.isArray(r)){
+      const vals = r.map(valueFromResult).filter(function(v){return v !== "-";});
+      return vals.length ? vals.join("<br>") : "-";
+    }
+
+    const keys = [
+      "value","result","medicion","measurement","actual","measured",
+      "valor","resultado","dimension","measuredValue","displayValue",
+      "measured_value","rawValue","decodedValue"
+    ];
+
+    for(const k of keys){
+      if(r[k] !== undefined && r[k] !== null && r[k] !== "") return r[k];
+    }
+
+    if(Array.isArray(r.items)){
+      const vals = r.items.map(valueFromResult).filter(function(v){return v !== "-";});
+      return vals.length ? vals.join("<br>") : "-";
+    }
+
+    if(Array.isArray(r.values)){
+      const vals = r.values.map(valueFromResult).filter(function(v){return v !== "-";});
+      return vals.length ? vals.join("<br>") : "-";
+    }
+
+    return "-";
+  }
+
+  function explicitStatus(r){
+    if(r === undefined || r === null || r === "") return "";
+    if(typeof r !== "object"){
+      const s = String(r).toUpperCase();
+      if(s.includes("NOK")) return "NOK";
+      if(s.includes("OK")) return "OK";
+      if(s.includes("PEND")) return "PEND.";
+      return "";
+    }
+
+    const keys = ["status","estado","state","resultStatus","oknok","decision","validation","validacion"];
+    for(const k of keys){
+      if(r[k] !== undefined && r[k] !== null && r[k] !== ""){
+        const s = String(r[k]).toUpperCase();
+        if(s.includes("NOK")) return "NOK";
+        if(s.includes("OK")) return "OK";
+        if(s.includes("PEND")) return "PEND.";
+      }
+    }
+
+    if(r.ok === true || r.isOk === true || r.pass === true || r.valid === true) return "OK";
+    if(r.ok === false || r.isOk === false || r.pass === false || r.valid === false) return "NOK";
+
+    return "";
+  }
+
+  function num(v){
+    const n = parseFloat(String(v ?? "").replace(",", ".").replace(/[^0-9.+-]/g, ""));
+    return Number.isFinite(n) ? n : NaN;
+  }
+
+  function validateByTolerance(c, value){
+    const v = num(value);
+    if(!Number.isFinite(v)) return "";
+
+    const lower = num(c && (c.lower ?? c.min ?? c.lsl ?? c.LI));
+    const upper = num(c && (c.upper ?? c.max ?? c.usl ?? c.LS));
+
+    if(Number.isFinite(lower) && v < lower) return "NOK";
+    if(Number.isFinite(upper) && v > upper) return "NOK";
+    if(Number.isFinite(lower) || Number.isFinite(upper)) return "OK";
+
+    return "";
+  }
+
+  if(typeof window.statusOf !== "function"){
+    window.statusOf = function(c){
+      const results = getResults(c);
+      const keys = Object.keys(results || {});
+      let hasOk = false;
+      let hasMeasurement = false;
+
+      for(const k of keys){
+        const r = results[k];
+        let st = explicitStatus(r);
+        const val = valueFromResult(r);
+        if(!st) st = validateByTolerance(c, val);
+
+        if(st === "NOK") return "NOK";
+        if(st === "OK") hasOk = true;
+        if(val !== "-" && val !== "") hasMeasurement = true;
+      }
+
+      const own = explicitStatus(c);
+      if(own === "NOK") return "NOK";
+      if(own === "OK") hasOk = true;
+
+      if(hasOk || hasMeasurement) return "OK";
+      return "PEND.";
+    };
+  }
+
+  if(typeof window.pieceStatus !== "function"){
+    window.pieceStatus = function(c,piece){
+      const r = getResult(c,piece);
+      let st = explicitStatus(r);
+      const val = valueFromResult(r);
+
+      if(!st) st = validateByTolerance(c, val);
+      if(st) return st;
+
+      if(val !== "-" && val !== "") return "OK";
+      return "PEND.";
+    };
+  }
+
+  if(typeof window.resultCell !== "function"){
+    window.resultCell = function(c,piece){
+      const r = getResult(c,piece);
+      const v = valueFromResult(r);
+      if(v === "-" || v === "") return "-";
+
+      const st = window.pieceStatus ? window.pieceStatus(c,piece) : "";
+      const cls = String(st).toUpperCase().includes("NOK") ? " nokVal" : "";
+      return '<div class="resultStack"><input class="manualInput'+cls+'" value="'+esc(v)+'" readonly></div>';
+    };
+  }
+
+  if(typeof window.featureType !== "function"){
+    window.featureType = function(c){
+      return c?.type || c?.featureType || c?.kind || c?.tipo || c?.family || "";
+    };
+  }
+
+  if(typeof window.cleanChar !== "function"){
+    window.cleanChar = function(v){
+      return String(v ?? "").replace(/\s+/g, " ").trim();
+    };
+  }
+
+  if(typeof window.specText !== "function"){
+    window.specText = function(c){
+      if(!c) return "";
+      if(c.specification || c.spec || c.tolerance || c.especificacion){
+        return esc(c.specification || c.spec || c.tolerance || c.especificacion);
+      }
+
+      const parts = [];
+      if(c.nominal !== undefined && c.nominal !== null && c.nominal !== "") parts.push(String(c.nominal));
+      if(c.lower !== undefined && c.lower !== null && c.lower !== "") parts.push("LI " + String(c.lower));
+      if(c.upper !== undefined && c.upper !== null && c.upper !== "") parts.push("LS " + String(c.upper));
+      if(c.units) parts.push(String(c.units));
+
+      return esc(parts.join(" / "));
+    };
+  }
+
+  if(typeof window.isKcs !== "function"){
+    window.isKcs = function(c){
+      const p = window.__paramioCurrentProject || (typeof loadProject === "function" ? loadProject() : null);
+      const sel = typeof loadKcsSelection === "function" ? loadKcsSelection(p || {}) : {};
+      const n = String(c?.number ?? c?.no ?? c?.globo ?? "");
+      return !!c?.kcs || !!c?.isKcs || !!c?.KCS || !!sel[n] || !!sel[c?.number] || !!sel[c?.no];
+    };
+  }
+})();
+</script>
 </head>
 <body><div class="app"><script>document.write(renderShell('isir'))</script><main class="main"><header class="top"><div><h1>ISIR 100%</h1><p>Render ISIR. No interpreta Excel; usa el motor común.</p></div><div class="actions noPrint"><a class="btn light" href="index.html">Cargar Excel</a><button class="btn" onclick="window.print()">Imprimir</button></div></header><div id="root"></div></main></div><script>
 let p=loadProject();const root=document.getElementById('root');function render(){p=applyKcsSelectionToProject(loadProject());window.__paramioCurrentProject=p;if(!p||!p.characteristics.length){root.innerHTML=noDataHtml();return;}const chars=filterRows(p.characteristics),pieces=selectedPieces(p,true);root.innerHTML=`<section class="card"><div class="docHead"><div><img class="logoSmall" src="assets/logo_paramio.png"><h2>ISIR</h2><p>Informe de inspección inicial. Las KCS se identifican visualmente según la selección dimensional.</p></div>${metaHtml(p)}</div></section><section class="card noPrint"><div class="toolbar"><input id="filter" type="search" placeholder="Filtrar globo / característica / estado" oninput="window.__lastFilter=this.value;render()"><div class="actions"><a class="btn light" href="dimensional.html">Marcar KCS en Dimensional</a><a class="btn orange" href="diagnostico.html">Diagnóstico</a></div></div></section><section class="card"><div class="statGrid"><div class="stat"><b>${p.characteristics.length}</b><span>Cotas</span></div><div class="stat"><b>${Object.keys(loadKcsSelection(p)).length}</b><span>KCS</span></div><div class="stat"><b>${p.characteristics.filter(c=>statusOf(c)==='OK').length}</b><span>OK</span></div><div class="stat"><b>${p.characteristics.filter(c=>statusOf(c)==='NOK').length}</b><span>NOK</span></div><div class="stat"><b>${p.characteristics.filter(c=>statusOf(c)==='PEND.').length}</b><span>Sin medición</span></div></div></section><section class="card"><div class="tableWrap"><table><thead><tr><th>Globo</th><th>KCS</th><th>Tipo</th><th>Característica Inspection</th><th>Especificación</th>${pieces.map(x=>`<th>Registro pieza ${esc(x)}</th><th>Estado pieza ${esc(x)}</th>`).join('')}</tr></thead><tbody>${chars.map(c=>`<tr><td>${esc(c.number)}</td><td>${isKcs(c)?'<span class="pill kcs">KCS</span>':''}</td><td><b>${esc(featureType(c))}</b></td><td>${esc(cleanChar(c.value))}</td><td>${specText(c)}</td>${pieces.map(x=>`<td class="result">${resultCell(c,x)}</td><td>${statusPill(pieceStatus(c,x))}</td>`).join('')}</tr>`).join('')}</tbody></table></div></section>`;const f=document.getElementById('filter');if(f)f.value=(window.__lastFilter||'');}try{render();}catch(err){console.error(err);document.getElementById('root').innerHTML='<section class="card"><h2>Error ISIR</h2><p>'+esc(err.message)+'</p></section>';}
@@ -496,4 +683,3 @@ let p=loadProject();const root=document.getElementById('root');function render()
 })();
 </script>
 </body></html>
-
