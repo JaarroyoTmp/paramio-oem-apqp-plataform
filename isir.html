@@ -1,7 +1,247 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ISIR V223</title><link rel="stylesheet" href="assets/platform.css"><script src="core/storage.js"></script><script src="core/type-normalizer.js"></script><script src="core/parser-inspection.js"></script><script src="core/parser-pcdmis.js"></script><script src="core/validation-engine.js"></script><script src="core/strategies/dimension.js"></script><script src="core/strategies/position.js"></script><script src="core/strategies/profile.js"></script><script src="core/strategies/diameter.js"></script><script src="core/strategies/flatness.js"></script><script src="core/strategies/orientation.js"></script><script src="core/strategies/depth.js"></script><script src="core/strategies/radius.js"></script><script src="core/strategies/thread.js"></script><script src="core/result-engine.js"></script><script src="core/diagnostics-engine.js"></script></head>
-<body><div class="app"><script>document.write(renderShell('isir'))</script><main class="main"><header class="top"><div><h1>ISIR 100%</h1><p>Render ISIR. No interpreta Excel; usa el motor común.</p></div><div class="actions noPrint"><a class="btn light" href="index.html">Cargar Excel</a><button class="btn" onclick="window.print()">Imprimir</button></div></header><div id="root"></div></main></div><script>
-let p=loadProject();const root=document.getElementById('root');function render(){p=applyKcsSelectionToProject(loadProject());if(!p||!p.characteristics.length){root.innerHTML=noDataHtml();return;}const chars=filterRows(p.characteristics),pieces=selectedPieces(p,true);root.innerHTML=`<section class="card"><div class="docHead"><div><img class="logoSmall" src="assets/logo_paramio.png"><h2>ISIR</h2><p>Informe de inspección inicial. Las KCS se identifican visualmente según la selección dimensional.</p></div>${metaHtml(p)}</div></section><section class="card noPrint"><div class="toolbar"><input id="filter" type="search" placeholder="Filtrar globo / característica / estado" oninput="window.__lastFilter=this.value;render()"><div class="actions"><a class="btn light" href="dimensional.html">Marcar KCS en Dimensional</a><a class="btn orange" href="diagnostico.html">Diagnóstico</a></div></div></section><section class="card"><div class="statGrid"><div class="stat"><b>${p.characteristics.length}</b><span>Cotas</span></div><div class="stat"><b>${Object.keys(loadKcsSelection(p)).length}</b><span>KCS</span></div><div class="stat"><b>${p.characteristics.filter(c=>statusOf(c)==='OK').length}</b><span>OK</span></div><div class="stat"><b>${p.characteristics.filter(c=>statusOf(c)==='NOK').length}</b><span>NOK</span></div><div class="stat"><b>${p.characteristics.filter(c=>statusOf(c)==='PEND.').length}</b><span>Sin medición</span></div></div></section><section class="card"><div class="tableWrap"><table><thead><tr><th>Globo</th><th>KCS</th><th>Tipo</th><th>Característica Inspection</th><th>Especificación</th>${pieces.map(x=>`<th>Registro pieza ${esc(x)}</th><th>Estado pieza ${esc(x)}</th>`).join('')}</tr></thead><tbody>${chars.map(c=>`<tr><td>${esc(c.number)}</td><td>${isKcs(c)?'<span class="pill kcs">KCS</span>':''}</td><td><b>${esc(featureType(c))}</b></td><td>${esc(cleanChar(c.value))}</td><td>${specText(c)}</td>${pieces.map(x=>`<td class="result">${resultCell(c,x)}</td><td>${statusPill(pieceStatus(c,x))}</td>`).join('')}</tr>`).join('')}</tbody></table></div></section>`;const f=document.getElementById('filter');if(f)f.value=(window.__lastFilter||'');}render();
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Paramio Inicio V218</title><link rel="stylesheet" href="assets/platform.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script><script src="core/storage.js"></script><script src="core/type-normalizer.js"></script><script src="core/parser-inspection.js"></script><script src="core/parser-pcdmis.js"></script><script src="core/validation-engine.js"></script><script src="core/strategies/dimension.js"></script><script src="core/strategies/position.js"></script><script src="core/strategies/profile.js"></script><script src="core/strategies/diameter.js"></script><script src="core/strategies/flatness.js"></script><script src="core/strategies/orientation.js"></script><script src="core/strategies/depth.js"></script><script src="core/strategies/radius.js"></script><script src="core/strategies/thread.js"></script><script src="core/result-engine.js"></script><script src="core/diagnostics-engine.js"></script><style id="paramio-inline-shell-fallback">
+:root{--navy:#0d2345;--navy2:#173864;--line:#c9d5e6;--bg:#eef3f8;--orange:#ef8b2c;--green:#168a45;--red:#d22d24}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:#061b3d;font-family:Arial,Helvetica,sans-serif;font-size:14px}
+.app{display:flex;min-height:100vh}
+.side{width:235px;background:#071a3a;color:#fff;padding:14px 10px;position:fixed;left:0;top:0;bottom:0}
+.brand{background:#fff;color:#071a3a;border-radius:9px;padding:12px;margin-bottom:18px;display:flex;flex-direction:column;gap:2px;font-weight:900}
+.brand img{max-width:145px;max-height:56px;object-fit:contain}
+.brand span{font-size:11px;letter-spacing:.08em;color:#52647d}
+.side nav{display:flex;flex-direction:column;gap:7px}
+.side nav a{color:#fff;text-decoration:none;font-weight:900;padding:11px 14px;border-radius:7px}
+.side nav a.active,.side nav a:hover{background:#22395b;border-left:4px solid var(--orange)}
+.side small{display:block;margin-top:28px;border-top:1px solid rgba(255,255,255,.18);padding-top:14px;color:#c9d5e6;line-height:1.45}
+.main{margin-left:235px;width:calc(100% - 235px);padding:22px 28px}
+.top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:18px}
+.top h1{margin:0 0 8px;font-size:28px;color:#071a3a}
+.top p{margin:0;color:#31445f}
+.pill{background:#e8f5ec;color:#087033;border-radius:999px;padding:8px 12px;font-weight:900;font-size:12px}
+.card{background:#fff;border:1px solid var(--line);border-radius:10px;padding:18px;margin-bottom:16px;box-shadow:0 4px 18px rgba(7,26,58,.04)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.uploadGrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+label{display:block;text-transform:uppercase;font-size:12px;font-weight:900;color:#405470;margin-bottom:6px}
+input,select,textarea{width:100%;border:1px solid #b8c7db;border-radius:6px;padding:9px 11px;background:#fff;color:#061b3d;font-weight:700}
+input[type=file]{font-weight:400}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin:12px 0}
+.stat{border:1px solid var(--line);border-radius:8px;padding:14px;background:#fbfdff}
+.stat b{display:block;font-size:28px;line-height:1;color:#071a3a}
+.stat span{display:block;margin-top:6px;font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#52647d;font-weight:900}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.btn{display:inline-block;border:1px solid #b8c7db;border-radius:7px;padding:11px 16px;background:#1d477a;color:#fff;text-decoration:none;font-weight:900;cursor:pointer}
+.btn.light{background:#fff;color:#071a3a}
+.btn.green{background:var(--green)}
+.btn.red{background:var(--red)}
+.btn.disabled{opacity:.45;pointer-events:none}
+.notice{margin-top:12px;border:1px solid #e3bd77;background:#fff8e8;color:#5a3b08;padding:13px;border-radius:7px}
+.okNotice{border-color:#8bd09c;background:#effaf2;color:#095f25}
+.badNotice{border-color:#ef9f9f;background:#fff1f1;color:#8a1414}
+.fileList{margin-top:10px}
+.fileRow{display:flex;justify-content:space-between;border:1px solid #d8e0ec;background:#f9fbfe;border-radius:6px;padding:8px;margin-top:6px}
+@media(max-width:900px){.side{position:static;width:auto}.app{display:block}.main{margin-left:0;width:100%;padding:15px}.grid,.uploadGrid,.stats{grid-template-columns:1fr}}
+</style>
+<script id="paramio-inline-shell-fallback">
+window.esc = window.esc || function(v){
+  return String(v ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
+};
+window.renderShell = window.renderShell || function(active){
+  return '<aside class="side">'+
+    '<div class="brand"><b>Paramio</b><span>QUALITY DOCUMENTATION</span></div>'+
+    '<nav>'+
+    '<a class="'+(active==="home"?"active":"")+'" href="index.html">Inicio / Cargar</a>'+
+    '<a href="diagnostico.html">Diagnóstico</a>'+
+    '<a href="isir.html">ISIR</a>'+
+    '<a href="dimensional.html">Dimensional</a>'+
+    '<a href="kcs.html">KCS</a>'+
+    '<a href="control-plan.html">Plan de control</a>'+
+    '<a href="flowchart.html">Flowchart</a>'+
+    '</nav><small>CORE V218<br>KCS exacto + presentación profesional.</small>'+
+    '</aside>';
+};
+</script></head>
+<body><div class="app"><script>document.write(renderShell('home'))</script><main class="main"><header class="top"><div><h1>Inicio de documentación de calidad</h1><p>Solo carga, procesa y guarda datos limpios. Los módulos leen el mismo motor central.</p></div><span class="pill">V218 raw block view</span></header><section class="card"><div class="grid"><div><label>Referencia</label><input id="ref" value="CE38126"></div><div><label>Revisión</label><input id="rev" value="C.2"></div><div><label>Cliente</label><input id="client" value="John Deere"></div><div><label>Nombre pieza</label><input id="part" value="HOUSING KNUCKLE HOUSING RH"></div><div><label>Fecha</label><input id="date" type="date"></div><div><label>Nº Plan Control</label><input id="planNo" value="TMPTP00001"></div></div></section><section class="uploadGrid"><div class="card"><h2>1 · Excel Inspection</h2><input id="inspectionFile" type="file" accept=".xlsx,.xls,.csv"><div id="inspectionList" class="fileList" style="display:none"></div></div><div class="card"><h2>2 · PC-DMIS múltiples</h2><input id="pcdmisFiles" type="file" multiple accept=".xlsx,.xls,.csv,.txt"><div id="pcdmisList" class="fileList" style="display:none"></div></div></section><section class="card"><h2>Resumen</h2><div class="stats"><div class="stat"><b id="cCount">0</b><span>Cotas Inspection</span></div><div class="stat"><b id="pcCount">0</b><span>Informes PC-DMIS</span></div><div class="stat"><b id="rCount">0</b><span>Bloques asociados</span></div><div class="stat"><b id="uCount">0</b><span>Sin bloque</span></div><div class="stat"><b id="statusBox">Pend.</b><span>Estado</span></div></div><div class="actions"><button class="btn green" onclick="processFiles()">Procesar documentación</button><a id="diagLink" class="btn light disabled" href="diagnostico.html">Diagnóstico</a><a id="isirLink" class="btn disabled" href="isir.html">Ver ISIR</a><a id="kcsLink" class="btn light disabled" href="kcs.html">Ver KCS</a><a id="dimLink" class="btn light disabled" href="dimensional.html">Ver dimensional</a><button class="btn red" onclick="clearProject();location.reload()">Borrar datos</button></div><div id="msg" class="notice">Carga los archivos y pulsa <b>Procesar documentación</b>.</div></section></main></div><script>
+document.getElementById('date').valueAsDate=new Date();function filesHtml(files){return[...files].map((f,i)=>`<div class="fileRow"><b>${i+1}. ${esc(f.name)}</b><span>${Math.round(f.size/1024)} KB</span></div>`).join('')}inspectionFile.onchange=e=>{inspectionList.style.display=e.target.files.length?'block':'none';inspectionList.innerHTML=filesHtml(e.target.files)};pcdmisFiles.onchange=e=>{pcdmisList.style.display=e.target.files.length?'block':'none';pcdmisList.innerHTML=filesHtml(e.target.files);pcCount.textContent=e.target.files.length};function enableLinks(){diagLink.classList.remove('disabled');isirLink.classList.remove('disabled');kcsLink.classList.remove('disabled');dimLink.classList.remove('disabled')}function readWorkbook(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>{try{res(XLSX.read(new Uint8Array(e.target.result),{type:'array'}));}catch(err){rej(err)}};r.onerror=rej;r.readAsArrayBuffer(file);});}function readRows(file){return new Promise((res,rej)=>{if(/\.csv$|\.txt$/i.test(file.name)){const r=new FileReader();r.onload=e=>res(parseCsvText(e.target.result));r.onerror=rej;r.readAsText(file,'windows-1252');}else{readWorkbook(file).then(wb=>res(workbookAllRows(wb))).catch(rej);}})}(function restore(){const p=loadProject();if(p){cCount.textContent=p.characteristics.length;pcCount.textContent=(p.pcdmisFiles||[]).length;rCount.textContent=p.linkedResults||0;uCount.textContent=(p.unlinked||[]).length;statusBox.textContent='OK';enableLinks();msg.className='notice okNotice';msg.innerHTML='Datos guardados para <b>'+esc(p.meta.reference)+'</b>. Motor CORE V218 activo.'}})();async function processFiles(){if(typeof XLSX==='undefined'){msg.className='notice badNotice';msg.innerHTML='No se ha cargado XLSX.';return;}const insp=inspectionFile.files[0];if(!insp){alert('Carga primero el Excel Inspection');return;}msg.className='notice';msg.textContent='Procesando archivos...';try{const wb=await readWorkbook(insp);const chars=parseInspectionWorkbook(wb);let linked=0,unlinked=[],piece=1,pcFiles=[...pcdmisFiles.files],pcdmisBlocks={},pcdmisRawBlocks={},pcdmisGlobalItems={};for(const file of pcFiles){const rows=await readRows(file);const parsed=parsePcDmisRows(rows);pcdmisBlocks[String(piece)]=parsed.measures;pcdmisRawBlocks[String(piece)]=parsed.rawBlocks||{};pcdmisGlobalItems[String(piece)]=parsed.globalItems||[];Object.entries(parsed.measures).forEach(([n,res])=>{const c=chars.find(x=>Number(x.number)===Number(n));if(c){c.results[String(piece)]=res;linked++;}else unlinked.push(n);});piece++;}const project={meta:{reference:ref.value,revision:rev.value,client:client.value,partName:part.value,date:date.value,planNo:planNo.value},characteristics:chars,pcdmisFiles:pcFiles.map(f=>f.name),pcdmisBlocks,pcdmisRawBlocks,pcdmisGlobalItems,linkedResults:linked,unlinked,createdAt:new Date().toISOString()};saveProject(project);enableLinks();cCount.textContent=chars.length;pcCount.textContent=pcFiles.length;rCount.textContent=linked;uCount.textContent=unlinked.length;statusBox.textContent='OK';msg.className='notice okNotice';msg.innerHTML=`Guardado CORE V218: <b>${chars.length}</b> cotas, <b>${pcFiles.length}</b> PC-DMIS, <b>${linked}</b> bloques asociados.`;}catch(err){console.error(err);msg.className='notice badNotice';msg.textContent='Error procesando: '+err.message;}}
 </script>
+<style>
+.paramio-cad-doc{
+  margin-top:16px;
+  border:1px solid #b9c7d9;
+  background:#ffffff;
+  display:grid;
+  grid-template-columns:1.25fr .9fr;
+  min-height:360px;
+}
+.paramio-cad-doc .cad-preview{
+  background:linear-gradient(135deg,#0f2649,#183b68);
+  color:#fff;
+  padding:22px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+.paramio-cad-doc .cad-title{
+  font-size:22px;
+  font-weight:900;
+  letter-spacing:.08em;
+  border-bottom:1px solid rgba(255,255,255,.25);
+  padding-bottom:10px;
+}
+.paramio-cad-doc .cad-image-box{
+  flex:1;
+  min-height:230px;
+  border:1px dashed rgba(255,255,255,.35);
+  background:rgba(255,255,255,.06);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:18px;
+  overflow:hidden;
+}
+.paramio-cad-doc .cad-image-box img{
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain;
+  background:#fff;
+}
+.paramio-cad-doc .cad-side{
+  padding:22px;
+  background:#f7f9fc;
+  border-left:1px solid #c8d4e6;
+}
+.paramio-cad-doc .cad-side h3{
+  margin:0 0 12px;
+  color:#061b3d;
+  font-size:16px;
+  letter-spacing:.04em;
+}
+.paramio-cad-doc .cad-field{
+  margin-bottom:12px;
+  border-bottom:1px solid #d8e0ec;
+  padding-bottom:8px;
+}
+.paramio-cad-doc .cad-field label{
+  display:block;
+  font-size:10px;
+  color:#52647d;
+  font-weight:900;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  margin-bottom:4px;
+}
+.paramio-cad-doc .cad-field div{
+  font-weight:800;
+  color:#0a2348;
+}
+.paramio-cad-doc .cad-actions{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+  margin-top:16px;
+}
+.paramio-cad-doc input[type=file]{
+  width:100%;
+  border:1px solid #bac8da;
+  padding:8px;
+  background:#fff;
+}
+.paramio-cad-doc .cad-note{
+  font-size:12px;
+  line-height:1.45;
+  color:#42566f;
+  background:#fff;
+  border-left:4px solid #efb27f;
+  padding:10px;
+  margin-top:12px;
+}
+@media(max-width:1000px){
+  .paramio-cad-doc{grid-template-columns:1fr}
+  .paramio-cad-doc .cad-side{border-left:0;border-top:1px solid #c8d4e6}
+}
+@media print{
+  .paramio-cad-doc input{display:none}
+  .paramio-cad-doc{break-inside:avoid}
+}
+</style>
+
+<div id="paramioCadDocV241" class="paramio-cad-doc">
+  <section class="cad-preview">
+    <div class="cad-title">VISTA PIEZA / CAD</div>
+    <div id="cadImageBoxV241" class="cad-image-box">
+      <div>
+        <strong>IMAGEN DE PIEZA NO CARGADA</strong><br>
+        <small>Para presentación cliente, cargar captura PNG/JPG del sólido.</small>
+      </div>
+    </div>
+  </section>
+  <aside class="cad-side">
+    <h3>Archivo técnico asociado</h3>
+    <div class="cad-field">
+      <label>CAD / sólido</label>
+      <div id="cadNameV241">Sin archivo CAD asociado</div>
+    </div>
+    <div class="cad-field">
+      <label>Formato</label>
+      <div id="cadFormatV241">STEP / STP / STL / OBJ / IGES</div>
+    </div>
+    <div class="cad-field">
+      <label>Uso documental</label>
+      <div>Portada · Flowchart · Plan de Control · ISIR · KCS</div>
+    </div>
+    <div class="cad-actions">
+      <label><strong>Asociar archivo CAD</strong><input id="cadFileV241" type="file" accept=".step,.stp,.stl,.obj,.iges,.igs"></label>
+      <label><strong>Cargar imagen/captura pieza</strong><input id="cadImageV241" type="file" accept="image/png,image/jpeg,image/webp"></label>
+    </div>
+    <div class="cad-note">
+      El STEP queda vinculado a la documentación. Para presencia visual fiable en cliente, usar imagen renderizada/captura del CAD. No se muestra geometría falsa.
+    </div>
+  </aside>
+</div>
+
+<script>
+(function(){
+  function ext(name){ return String(name||"").split(".").pop().toUpperCase(); }
+  function save(key, value){ try{ localStorage.setItem(key, value); }catch(e){} }
+  function load(key){ try{ return localStorage.getItem(key); }catch(e){ return null; } }
+
+  const cadInput = document.getElementById("cadFileV241");
+  const imageInput = document.getElementById("cadImageV241");
+  const nameBox = document.getElementById("cadNameV241");
+  const fmtBox = document.getElementById("cadFormatV241");
+  const imgBox = document.getElementById("cadImageBoxV241");
+
+  const oldName = load("paramio_cad_name_v241");
+  const oldFmt = load("paramio_cad_format_v241");
+  const oldImg = load("paramio_cad_image_v241");
+  if(oldName) nameBox.textContent = oldName;
+  if(oldFmt) fmtBox.textContent = oldFmt;
+  if(oldImg) imgBox.innerHTML = '<img src="'+oldImg+'" alt="Vista pieza CAD">';
+
+  if(cadInput){
+    cadInput.addEventListener("change", function(){
+      const f = this.files && this.files[0];
+      if(!f) return;
+      nameBox.textContent = f.name;
+      fmtBox.textContent = ext(f.name);
+      save("paramio_cad_name_v241", f.name);
+      save("paramio_cad_format_v241", ext(f.name));
+    });
+  }
+
+  if(imageInput){
+    imageInput.addEventListener("change", function(){
+      const f = this.files && this.files[0];
+      if(!f) return;
+      const reader = new FileReader();
+      reader.onload = function(e){
+        imgBox.innerHTML = '<img src="'+e.target.result+'" alt="Vista pieza CAD">';
+        save("paramio_cad_image_v241", e.target.result);
+      };
+      reader.readAsDataURL(f);
+    });
+  }
+})();
+</script>
+
 
 
 <style id="paramio-v250-lang-style">
@@ -361,4 +601,8 @@ let p=loadProject();const root=document.getElementById('root');function render()
   window.paramioTranslateNow = function(){ walk(localStorage.getItem("paramio_doc_lang") || "es"); };
 })();
 </script>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="js/supabase.js"></script>
+
 </body></html>
